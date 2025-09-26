@@ -1000,6 +1000,6 @@ def bulk_action():
     return redirect(url_for("index"))
 
 if __name__ == "__main__":
-    # Ejecuta: python app.py  (se abrirá en http://127.0.0.1:8000/)
-    port = int(os.environ.get("PORT", "8000"))
+    # Ejecuta: python app.py  (se abrirá en http://127.0.0.1:5000/)
+    port = int(os.environ.get("PORT", "5000"))
     app.run(host="127.0.0.1", port=port, debug=True)
