@@ -1,0 +1,3100 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NewsFlow Pro - Plataforma de Inteligencia de Noticias</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script>
+    // Sistema de carga robusto para Chart.js
+    function loadChartJS() {
+      return new Promise((resolve, reject) => {
+        const cdnUrls = [
+          'https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js',
+          'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js',
+          'https://unpkg.com/chart.js@3.9.1/dist/chart.min.js'
+        ];
+        
+        let currentIndex = 0;
+        
+        function tryLoadScript(url) {
+          const script = document.createElement('script');
+          script.src = url;
+          script.onload = () => {
+            console.log(`✅ Chart.js cargado desde: ${url}`);
+            resolve();
+          };
+          script.onerror = () => {
+            console.warn(`❌ Falló carga desde: ${url}`);
+            currentIndex++;
+            if (currentIndex < cdnUrls.length) {
+              tryLoadScript(cdnUrls[currentIndex]);
+            } else {
+              console.error('❌ No se pudo cargar Chart.js desde ningún CDN');
+              reject(new Error('Chart.js no disponible'));
+            }
+          };
+          document.head.appendChild(script);
+        }
+        
+        tryLoadScript(cdnUrls[0]);
+      });
+    }
+    
+    // Cargar Chart.js antes de que se ejecute el resto del código
+    loadChartJS().catch(() => {
+      console.error('Chart.js no disponible - los gráficos no funcionarán');
+    });
+  </script>
+  <style>
+    :root {
+      /* Paleta de colores empresarial 2025 */
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --primary-light: #818cf8;
+      --secondary: #06b6d4;
+      --accent: #f59e0b;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --info: #3b82f6;
+      
+      /* Fondos */
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8fafc;
+      --bg-tertiary: #f1f5f9;
+      --bg-card: #ffffff;
+      --bg-hover: #f8fafc;
+      
+      /* Textos */
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --text-light: #94a3b8;
+      
+      /* Bordes */
+      --border: #e2e8f0;
+      --border-light: #f1f5f9;
+      --border-medium: #cbd5e1;
+      
+      /* Sombras */
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      
+      /* Gradientes */
+      --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      --gradient-secondary: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+      --gradient-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+      --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+      --gradient-error: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+      
+      /* Transiciones */
+      --transition-fast: 150ms ease-in-out;
+      --transition-normal: 300ms ease-in-out;
+      --transition-slow: 500ms ease-in-out;
+      
+      /* Espaciado */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2rem;
+      --space-2xl: 3rem;
+      
+      /* Bordes redondeados */
+      --radius-sm: 0.375rem;
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --radius-xl: 1rem;
+      --radius-2xl: 1.5rem;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      font-size: 16px;
+    }
+    
+    /* Header empresarial */
+    .header {
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      text-decoration: none;
+    }
+    
+    .logo i {
+      font-size: 2rem;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .theme-toggle {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .theme-toggle:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--primary);
+    }
+    
+    /* Container principal */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    /* Hero section */
+    .hero {
+      background: var(--gradient-primary);
+      color: white;
+      border-radius: 1rem;
+      padding: 3rem 2rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+      opacity: 0.3;
+    }
+    
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 900;
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+    
+    .hero p {
+      font-size: 1.25rem;
+      opacity: 0.9;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    /* Dashboard grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s;
+    }
+    
+    .stat-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+    
+    .stat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    
+    .stat-icon {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: white;
+    }
+    
+    .stat-icon.primary { background: var(--gradient-primary); }
+    .stat-icon.secondary { background: var(--gradient-secondary); }
+    .stat-icon.success { background: linear-gradient(135deg, #10b981, #34d399); }
+    .stat-icon.warning { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+    
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    /* Formularios modernos */
+    .form-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .form-section h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: var(--text-primary);
+    }
+    
+    .form-group {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .form-control {
+      padding: 0.75rem 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: var(--radius-lg);
+      font-size: 1rem;
+      transition: all var(--transition-normal);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      color: var(--text-white);
+    }
+    
+    .form-control::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+    }
+    
+    .btn-primary {
+      background: var(--gradient-primary);
+      color: white;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--primary);
+    }
+    
+    .btn-success {
+      background: var(--gradient-success);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-glow-success);
+    }
+    
+    .btn-success:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    /* Tabla moderna */
+    .table-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .table-header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+    }
+    
+    .table-header h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-white);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .table-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+    
+    .search-input {
+      flex: 1;
+      min-width: 200px;
+    }
+    
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .table th {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 1rem 1.5rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-white);
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    
+    .table td {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      vertical-align: top;
+      color: var(--text-white);
+      transition: all var(--transition-fast);
+    }
+    
+    .table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(5px);
+      transform: scale(1.01);
+    }
+    
+    /* Mensajes */
+    .message {
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+    
+    .message.success {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    
+    .message.error {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--error);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+    
+    /* Tema oscuro mejorado */
+    body.dark-theme {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --bg-card: #1e293b;
+      --bg-hover: #334155;
+      
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --text-light: #64748b;
+      
+      --border: #334155;
+      --border-light: #475569;
+      --border-medium: #64748b;
+    }
+    
+    body.dark-theme .hero {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    }
+    
+    body.dark-theme .form-control {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border-color: var(--border);
+    }
+    
+    body.dark-theme .form-control:focus {
+      background: var(--bg-secondary);
+      border-color: var(--primary);
+    }
+    
+    /* Estilos específicos para el selector de temas */
+    #topic-filter {
+      background: linear-gradient(135deg, var(--secondary-light), var(--secondary));
+      color: white;
+      font-weight: 500;
+      border: 2px solid var(--secondary);
+    }
+    
+    #topic-filter option {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    
+    body.dark-theme #topic-filter {
+      background: linear-gradient(135deg, var(--secondary-dark), var(--secondary));
+      border-color: var(--secondary);
+    }
+    
+    body.dark-theme #topic-filter option {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+    
+    body.dark-theme .stat-card {
+      background: var(--bg-card);
+      border-color: var(--border);
+    }
+    
+    body.dark-theme .table-container {
+      background: var(--bg-card);
+      border-color: var(--border);
+    }
+    
+    body.dark-theme .table th {
+      background: var(--bg-secondary);
+      border-color: var(--border);
+    }
+    
+    body.dark-theme .table td {
+      border-color: var(--border-light);
+    }
+    
+    body.dark-theme .table tbody tr:hover {
+      background: var(--bg-hover);
+    }
+    
+    /* Filtros avanzados mejorados */
+    .advanced-filters {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-xl);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+    
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      position: relative;
+    }
+    
+    .filter-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .filter-actions {
+      display: flex;
+      gap: var(--space-sm);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    
+    /* Chips de filtros activos */
+    .active-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+      padding: var(--space-sm);
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-md);
+      min-height: 40px;
+    }
+    
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: var(--space-xs) var(--space-sm);
+      background: var(--gradient-primary);
+      color: white;
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      font-weight: 500;
+      animation: slideInRight 0.3s ease;
+    }
+    
+    .filter-chip .chip-remove {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 0;
+      margin-left: var(--space-xs);
+      opacity: 0.8;
+      transition: opacity var(--transition-fast);
+    }
+    
+    .filter-chip .chip-remove:hover {
+      opacity: 1;
+    }
+    
+    /* Autocompletado */
+    .autocomplete-container {
+      position: relative;
+    }
+    
+    .autocomplete-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 var(--radius-md) var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .suggestion-item {
+      padding: var(--space-sm) var(--space-md);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+      border-bottom: 1px solid var(--border-light);
+    }
+    
+    .suggestion-item:hover {
+      background: var(--bg-hover);
+    }
+    
+    .suggestion-item:last-child {
+      border-bottom: none;
+    }
+    
+    .suggestion-highlight {
+      background: var(--primary);
+      color: white;
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+    
+    /* Presets múltiples */
+    .presets-section {
+      margin-top: var(--space-md);
+      padding-top: var(--space-md);
+      border-top: 1px solid var(--border);
+    }
+    
+    .presets-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+    }
+    
+    .preset-item {
+      padding: var(--space-xs) var(--space-sm);
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      font-size: 0.875rem;
+    }
+    
+    .preset-item:hover {
+      background: var(--bg-hover);
+      border-color: var(--primary);
+    }
+    
+    .preset-item.active {
+      background: var(--gradient-primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    
+    /* Historial de búsqueda */
+    .search-history {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 var(--radius-md) var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+    
+    .history-item {
+      padding: var(--space-sm) var(--space-md);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .history-item:hover {
+      background: var(--bg-hover);
+    }
+    
+    .history-item:last-child {
+      border-bottom: none;
+    }
+    
+    .history-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    
+    /* Paginación */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-top: var(--space-lg);
+      padding: var(--space-md);
+    }
+    
+    .pagination button {
+      padding: var(--space-sm) var(--space-md);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: var(--transition-fast);
+    }
+    
+    .pagination button:hover {
+      background: var(--bg-hover);
+      border-color: var(--primary);
+    }
+    
+    .pagination button.active {
+      background: var(--gradient-primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    
+    .pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    /* Notificaciones */
+    .notification-center {
+      position: fixed;
+      top: var(--space-lg);
+      right: var(--space-lg);
+      z-index: 1000;
+      max-width: 400px;
+    }
+    
+    .notification {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-md);
+      margin-bottom: var(--space-sm);
+      box-shadow: var(--shadow-lg);
+      transform: translateX(100%);
+      transition: transform var(--transition-normal);
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification.success {
+      border-left: 4px solid var(--success);
+    }
+    
+    .notification.error {
+      border-left: 4px solid var(--error);
+    }
+    
+    .notification.warning {
+      border-left: 4px solid var(--warning);
+    }
+    
+    .notification.info {
+      border-left: 4px solid var(--info);
+    }
+    
+    /* Dashboard personalizable */
+    .dashboard-section {
+      margin-bottom: var(--space-xl);
+    }
+    
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-lg);
+      padding-bottom: var(--space-md);
+      border-bottom: 2px solid var(--border);
+    }
+    
+    .dashboard-header h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    
+    .dashboard-controls {
+      display: flex;
+      gap: var(--space-sm);
+    }
+    
+    /* Grid de widgets */
+    .widgets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: var(--space-lg);
+      margin-bottom: var(--space-xl);
+    }
+    
+    /* Widgets base */
+    .widget {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-normal);
+      overflow: hidden;
+    }
+    
+    .widget:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+    
+    .widget-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-md) var(--space-lg);
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .widget-header h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    
+    .widget-controls {
+      display: flex;
+      gap: var(--space-xs);
+      align-items: center;
+    }
+    
+    .widget-content {
+      padding: var(--space-lg);
+    }
+    
+    /* Tipos de widgets */
+    .stat-widget .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-md);
+    }
+    
+    .stat-item {
+      text-align: center;
+      padding: var(--space-md);
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-md);
+      transition: all var(--transition-fast);
+    }
+    
+    .stat-item:hover {
+      background: var(--bg-hover);
+      transform: scale(1.02);
+    }
+    
+    .stat-item .stat-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      color: white;
+      margin: 0 auto var(--space-sm);
+    }
+    
+    .stat-item .stat-value {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1;
+      margin-bottom: var(--space-xs);
+    }
+    
+    .stat-item .stat-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    /* Controles de formulario pequeños */
+    .form-control-sm {
+      padding: var(--space-xs) var(--space-sm);
+      font-size: 0.875rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+    
+    .btn-icon {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: var(--space-xs);
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+    }
+    
+    .btn-icon:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+    
+    /* Resumen diario */
+    .daily-summary {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-sm);
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-md);
+    }
+    
+    .summary-label {
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    
+    .summary-value {
+      font-weight: 600;
+      color: var(--text-primary);
+      text-align: right;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    /* Heatmap */
+    #heatmapContainer {
+      display: grid;
+      grid-template-columns: repeat(24, 1fr);
+      gap: 2px;
+      padding: var(--space-md);
+    }
+    
+    .heatmap-cell {
+      aspect-ratio: 1;
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+      cursor: pointer;
+    }
+    
+    .heatmap-cell:hover {
+      transform: scale(1.1);
+      z-index: 10;
+    }
+    
+    /* Nube de palabras */
+    #wordcloudContainer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      padding: var(--space-md);
+      justify-content: center;
+      align-items: center;
+      min-height: 200px;
+    }
+    
+    .word-item {
+      display: inline-block;
+      padding: var(--space-xs) var(--space-sm);
+      margin: var(--space-xs);
+      border-radius: var(--radius-md);
+      font-weight: 500;
+      color: white;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .word-item:hover {
+      transform: scale(1.1);
+      box-shadow: var(--shadow-md);
+    }
+    
+    /* Modo de edición del dashboard */
+    .widgets-grid.edit-mode .widget {
+      cursor: move;
+      border: 2px dashed var(--primary);
+    }
+    
+    .widgets-grid.edit-mode .widget:hover {
+      border-color: var(--primary-dark);
+      background: rgba(99, 102, 241, 0.05);
+    }
+    
+    .widget.hidden {
+      display: none;
+    }
+    
+    /* Responsive para widgets */
+    @media (max-width: 768px) {
+      .widgets-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .stat-widget .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .dashboard-header {
+        flex-direction: column;
+        gap: var(--space-md);
+        align-items: stretch;
+      }
+      
+      .dashboard-controls {
+        justify-content: center;
+      }
+    }
+    
+    /* Clasificación automática */
+    .topic-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-xs);
+      margin-top: var(--space-sm);
+    }
+    
+    .topic-tag {
+      background: var(--gradient-primary);
+      color: white;
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .topic-tag.politics { background: var(--gradient-error); }
+    .topic-tag.economy { background: var(--gradient-warning); }
+    .topic-tag.technology { background: var(--gradient-secondary); }
+    .topic-tag.sports { background: var(--gradient-success); }
+    
+    /* Resúmenes IA */
+    .ai-summary {
+      background: var(--bg-tertiary);
+      border-left: 4px solid var(--primary);
+      padding: var(--space-md);
+      border-radius: var(--radius-md);
+      margin-top: var(--space-sm);
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    
+    .ai-summary::before {
+      content: "🤖 Resumen IA:";
+      font-weight: 600;
+      color: var(--primary);
+      display: block;
+      margin-bottom: var(--space-xs);
+    }
+    
+    /* Animaciones mejoradas */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    .stat-card {
+      animation: fadeInUp 0.6s ease-out;
+      transition: all var(--transition-normal);
+    }
+    
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:nth-child(4) { animation-delay: 0.4s; }
+    
+    /* Efectos hover mejorados */
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .stat-card:hover .stat-icon {
+      transform: scale(1.1);
+      animation: pulse 2s infinite;
+    }
+    
+    .btn {
+      transition: all var(--transition-fast);
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    /* Iconografía consistente */
+    .icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+    
+    .icon-sm { width: 1rem; height: 1rem; }
+    .icon-lg { width: 1.5rem; height: 1.5rem; }
+    .icon-xl { width: 2rem; height: 2rem; }
+    
+    /* Loading states */
+    .btn.loading {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    
+    .btn.loading::after {
+      content: '';
+      width: 16px;
+      height: 16px;
+      border: 2px solid transparent;
+      border-top: 2px solid currentColor;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-left: 8px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Toast notifications */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      box-shadow: var(--shadow-xl);
+      border: 1px solid var(--border);
+      z-index: 1000;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+    }
+    
+    .toast.show {
+      transform: translateX(0);
+    }
+    
+    .toast.success {
+      border-left: 4px solid var(--success);
+    }
+    
+    .toast.error {
+      border-left: 4px solid var(--error);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      .hero {
+        padding: 2rem 1rem;
+      }
+      
+      .hero h1 {
+        font-size: 2rem;
+      }
+      
+      .form-group {
+        grid-template-columns: 1fr;
+      }
+      
+      .table-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .search-input {
+        min-width: auto;
+      }
+      
+      .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .stat-value {
+        font-size: 2rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .header-content {
+        padding: 1rem;
+      }
+      
+      .logo {
+        font-size: 1.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header empresarial -->
+  <header class="header">
+    <div class="header-content">
+      <a href="/" class="logo">
+        <i class="fas fa-newspaper"></i>
+        NewsF
+      </a>
+      <div class="nav-actions">
+        <div class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
+          <i class="fas fa-moon" id="theme-icon"></i>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Hero section -->
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Plataforma de Inteligencia de Noticias</h1>
+        <p>Monitorea, analiza y gestiona información de múltiples fuentes RSS con tecnología de vanguardia</p>
+      </div>
+    </section>
+
+    <!-- Dashboard personalizable -->
+    <div class="dashboard-section">
+      <div class="dashboard-header">
+        <h2><i class="fas fa-tachometer-alt"></i> Dashboard Personalizado</h2>
+        <div class="dashboard-controls">
+          <button onclick="toggleDashboardEdit()" class="btn btn-secondary">
+            <i class="fas fa-cog"></i> Personalizar
+          </button>
+          <button onclick="resetDashboard()" class="btn btn-secondary">
+            <i class="fas fa-undo"></i> Restablecer
+          </button>
+        </div>
+      </div>
+      
+      <!-- Widgets personalizables -->
+      <div class="widgets-grid" id="widgetsGrid">
+        <!-- Widget de estadísticas principales -->
+        <div class="widget stat-widget" data-widget="stats">
+          <div class="widget-header">
+            <h3><i class="fas fa-chart-bar"></i> Estadísticas Generales</h3>
+            <div class="widget-controls">
+              <button onclick="toggleWidget('stats')" class="btn-icon"><i class="fas fa-eye-slash"></i></button>
+            </div>
+          </div>
+          <div class="widget-content">
+            <div class="stats-grid">
+              <div class="stat-item">
+                <div class="stat-icon primary"><i class="fas fa-newspaper"></i></div>
+                <div class="stat-value">{{ stats.total_articles }}</div>
+                <div class="stat-label">Total Artículos</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-icon secondary"><i class="fas fa-link"></i></div>
+                <div class="stat-value">{{ stats.total_links }}</div>
+                <div class="stat-label">Links Guardados</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-icon success"><i class="fas fa-calendar-day"></i></div>
+                <div class="stat-value">{{ stats.articles_today }}</div>
+                <div class="stat-label">Hoy</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-icon warning"><i class="fas fa-chart-line"></i></div>
+                <div class="stat-value">{{ stats.articles_this_week }}</div>
+                <div class="stat-label">Esta Semana</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Widget de tendencias temporales -->
+        <div class="widget chart-widget" data-widget="trends">
+          <div class="widget-header">
+            <h3><i class="fas fa-chart-area"></i> Tendencias Temporales</h3>
+            <div class="widget-controls">
+              <select onchange="updateTrendsPeriod(this.value)" class="form-control-sm">
+                <option value="7">Últimos 7 días</option>
+                <option value="30">Últimos 30 días</option>
+                <option value="90">Últimos 90 días</option>
+              </select>
+              <button onclick="toggleWidget('trends')" class="btn-icon"><i class="fas fa-eye-slash"></i></button>
+            </div>
+          </div>
+          <div class="widget-content">
+            <canvas id="trendsChart" height="200"></canvas>
+          </div>
+        </div>
+        
+        <!-- Widget de comparativa por fuentes -->
+        <div class="widget chart-widget" data-widget="sources">
+          <div class="widget-header">
+            <h3><i class="fas fa-chart-pie"></i> Distribución por Fuentes</h3>
+            <div class="widget-controls">
+              <button onclick="toggleWidget('sources')" class="btn-icon"><i class="fas fa-eye-slash"></i></button>
+            </div>
+          </div>
+          <div class="widget-content">
+            <canvas id="sourcesChart" height="200"></canvas>
+          </div>
+        </div>
+        
+        <!-- Widget de heatmap temporal -->
+        <div class="widget chart-widget" data-widget="heatmap">
+          <div class="widget-header">
+            <h3><i class="fas fa-calendar-alt"></i> Actividad por Horas</h3>
+            <div class="widget-controls">
+              <button onclick="toggleWidget('heatmap')" class="btn-icon"><i class="fas fa-eye-slash"></i></button>
+            </div>
+          </div>
+          <div class="widget-content">
+            <div id="heatmapContainer"></div>
+          </div>
+        </div>
+        
+        <!-- Widget de nube de palabras -->
+        <div class="widget chart-widget" data-widget="wordcloud">
+          <div class="widget-header">
+            <h3><i class="fas fa-cloud"></i> Temas Más Frecuentes</h3>
+            <div class="widget-controls">
+              <button onclick="toggleWidget('wordcloud')" class="btn-icon"><i class="fas fa-eye-slash"></i></button>
+            </div>
+          </div>
+          <div class="widget-content">
+            <div id="wordcloudContainer"></div>
+          </div>
+        </div>
+        
+        <!-- Widget de autores más activos -->
+        <div class="widget chart-widget" data-widget="authors">
+          <div class="widget-header">
+            <h3><i class="fas fa-users"></i> Autores Más Activos</h3>
+            <div class="widget-controls">
+              <button onclick="toggleWidget('authors')" class="btn-icon"><i class="fas fa-eye-slash"></i></button>
+            </div>
+          </div>
+          <div class="widget-content">
+            <canvas id="authorsChart" height="200"></canvas>
+          </div>
+        </div>
+        
+        <!-- Widget de análisis de sentimiento -->
+        <div class="widget chart-widget" data-widget="sentiment">
+          <div class="widget-header">
+            <h3><i class="fas fa-smile"></i> Análisis de Sentimiento</h3>
+            <div class="widget-controls">
+              <button onclick="toggleWidget('sentiment')" class="btn-icon"><i class="fas fa-eye-slash"></i></button>
+            </div>
+          </div>
+          <div class="widget-content">
+            <canvas id="sentimentChart" height="200"></canvas>
+          </div>
+        </div>
+        
+        <!-- Widget de resumen diario -->
+        <div class="widget summary-widget" data-widget="daily">
+          <div class="widget-header">
+            <h3><i class="fas fa-calendar-check"></i> Resumen del Día</h3>
+            <div class="widget-controls">
+              <button onclick="toggleWidget('daily')" class="btn-icon"><i class="fas fa-eye-slash"></i></button>
+            </div>
+          </div>
+          <div class="widget-content">
+            <div class="daily-summary">
+              <div class="summary-item">
+                <span class="summary-label">Noticia más importante:</span>
+                <span class="summary-value" id="topNews">Cargando...</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Tema más cubierto:</span>
+                <span class="summary-value" id="topTopic">Cargando...</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Fuente más activa:</span>
+                <span class="summary-value" id="topSource">Cargando...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtros avanzados mejorados -->
+    <div class="advanced-filters">
+      <h3 style="margin-bottom: var(--space-md); display: flex; align-items: center; gap: var(--space-sm);">
+        <i class="fas fa-filter"></i>
+        Filtros Avanzados Inteligentes
+      </h3>
+      
+      <!-- Chips de filtros activos -->
+      <div class="active-filters" id="activeFilters">
+        <span style="color: var(--text-muted); font-size: 0.875rem;">Filtros activos:</span>
+      </div>
+      
+      <div class="filters-grid">
+         <div class="filter-group">
+           <label class="filter-label">Fuente</label>
+           <div class="autocomplete-container">
+             <select id="filter-source" class="form-control" onchange="updateActiveFilters()">
+               <option value="">Todas las fuentes</option>
+               <optgroup label="🌍 Internacionales">
+                 {% for key, source in rss_sources.items() %}
+                   {% if source.region == "Internacional" %}
+                   <option value="{{ key }}">{{ source.name }}</option>
+                   {% endif %}
+                 {% endfor %}
+               </optgroup>
+               <optgroup label="🇵🇪 Perú">
+                 {% for key, source in rss_sources.items() %}
+                   {% if source.region == "Perú" %}
+                   <option value="{{ key }}">{{ source.name }}</option>
+                   {% endif %}
+                 {% endfor %}
+               </optgroup>
+               <optgroup label="🇨🇴 Colombia">
+                 {% for key, source in rss_sources.items() %}
+                   {% if source.region == "Colombia" %}
+                   <option value="{{ key }}">{{ source.name }}</option>
+                   {% endif %}
+                 {% endfor %}
+               </optgroup>
+               <optgroup label="🇪🇸 España">
+                 {% for key, source in rss_sources.items() %}
+                   {% if source.region == "España" %}
+                   <option value="{{ key }}">{{ source.name }}</option>
+                   {% endif %}
+                 {% endfor %}
+               </optgroup>
+               <optgroup label="🇦🇷 Argentina">
+                 {% for key, source in rss_sources.items() %}
+                   {% if source.region == "Argentina" %}
+                   <option value="{{ key }}">{{ source.name }}</option>
+                   {% endif %}
+                 {% endfor %}
+               </optgroup>
+               <optgroup label="🇩🇴 República Dominicana">
+                 {% for key, source in rss_sources.items() %}
+                   {% if source.region == "República Dominicana" %}
+                   <option value="{{ key }}">{{ source.name }}</option>
+                   {% endif %}
+                 {% endfor %}
+               </optgroup>
+               <optgroup label="🇲🇽 México">
+                 {% for key, source in rss_sources.items() %}
+                   {% if source.region == "México" %}
+                   <option value="{{ key }}">{{ source.name }}</option>
+                   {% endif %}
+                 {% endfor %}
+               </optgroup>
+             </select>
+           </div>
+         </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">Autor</label>
+          <div class="autocomplete-container">
+            <input type="text" id="filter-author" class="form-control" placeholder="Filtrar por autor..." 
+                   oninput="showAuthorSuggestions(this.value)" onchange="updateActiveFilters()">
+            <div class="autocomplete-suggestions" id="authorSuggestions" style="display: none;"></div>
+          </div>
+        </div>
+        
+         <div class="filter-group">
+           <label class="filter-label">Región</label>
+           <select id="filter-region" class="form-control" onchange="updateActiveFilters()">
+             <option value="">Todas las regiones</option>
+             <option value="Internacional">🌍 Internacional</option>
+             <option value="Perú">🇵🇪 Perú</option>
+             <option value="Colombia">🇨🇴 Colombia</option>
+             <option value="España">🇪🇸 España</option>
+             <option value="Argentina">🇦🇷 Argentina</option>
+             <option value="República Dominicana">🇩🇴 República Dominicana</option>
+             <option value="México">🇲🇽 México</option>
+           </select>
+         </div>
+         
+         <div class="filter-group">
+           <label class="filter-label">Sección</label>
+           <select id="filter-section" class="form-control" onchange="updateActiveFilters()">
+             <option value="">Todas las secciones</option>
+             <option value="Internacional">Internacional</option>
+             <option value="Nacional">Nacional</option>
+             <option value="Economía">Economía</option>
+             <option value="Tecnología">Tecnología</option>
+             <option value="Política">Política</option>
+             <option value="Cultura">Cultura</option>
+             <option value="Deportes">Deportes</option>
+             <option value="Salud">Salud</option>
+             <option value="Ciencia">Ciencia</option>
+           </select>
+         </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">Período</label>
+          <select id="filter-period" class="form-control" onchange="updateActiveFilters()">
+            <option value="">Todos los períodos</option>
+            <option value="today">Hoy</option>
+            <option value="week">Esta semana</option>
+            <option value="month">Este mes</option>
+            <option value="custom">Personalizado</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">Palabras clave</label>
+          <div class="autocomplete-container">
+            <input type="text" id="filter-keywords" class="form-control" placeholder="Buscar palabras clave..." 
+                   oninput="showKeywordSuggestions(this.value)" onchange="updateActiveFilters()">
+            <div class="autocomplete-suggestions" id="keywordSuggestions" style="display: none;"></div>
+          </div>
+        </div>
+        
+        <div class="filter-group">
+          <label class="filter-label">Solo favoritos</label>
+          <label style="display: flex; align-items: center; gap: var(--space-sm); cursor: pointer;">
+            <input type="checkbox" id="filter-favorites" style="margin: 0;" onchange="updateActiveFilters()">
+            <span>Mostrar solo favoritos</span>
+          </label>
+        </div>
+      </div>
+      
+      <!-- Presets múltiples -->
+      <div class="presets-section">
+        <h4 style="margin-bottom: var(--space-sm); font-size: 0.875rem; font-weight: 600; color: var(--text-secondary);">
+          <i class="fas fa-bookmark"></i> Presets Guardados
+        </h4>
+        <div class="presets-list" id="presetsList">
+          <div class="preset-item" onclick="loadPreset('default')">Por defecto</div>
+          <div class="preset-item" onclick="loadPreset('politics')">Política</div>
+          <div class="preset-item" onclick="loadPreset('economy')">Economía</div>
+          <div class="preset-item" onclick="loadPreset('technology')">Tecnología</div>
+        </div>
+      </div>
+      
+      <div class="filter-actions">
+        <button onclick="applyFilters()" class="btn btn-primary">
+          <i class="fas fa-search"></i> Aplicar Filtros
+        </button>
+        <button onclick="clearFilters()" class="btn btn-secondary">
+          <i class="fas fa-times"></i> Limpiar
+        </button>
+        <button onclick="saveNewPreset()" class="btn btn-secondary">
+          <i class="fas fa-save"></i> Guardar Preset
+        </button>
+        <button onclick="showSearchHistory()" class="btn btn-secondary">
+          <i class="fas fa-history"></i> Historial
+        </button>
+      </div>
+    </div>
+
+    <!-- Mensajes flash -->
+    {% with msgs = get_flashed_messages(with_categories=True) %}
+      {% if msgs %}
+        {% for cat, m in msgs %}
+          <div class="message {{cat}}">{{ m }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Formulario de agregar enlace -->
+    <section class="form-section">
+      <h3><i class="fas fa-plus-circle"></i> Agregar Nuevo Enlace</h3>
+      <form action="/add-link" method="post" class="form-group">
+        <input name="url" type="url" required placeholder="https://www.bbc.com/mundo/..." class="form-control">
+        <select name="modo" class="form-control">
+        <option value="simple">Simple (solo link)</option>
+        <option value="enriquecido">Enriquecido (extrae datos)</option>
+      </select>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save"></i> Guardar
+        </button>
+    </form>
+    </section>
+
+    <!-- Tabla de artículos -->
+    <div class="table-container">
+      <div class="table-header">
+        <h3><i class="fas fa-list"></i> Últimos Artículos Enriquecidos</h3>
+        <div class="table-actions">
+          <input id="q" type="search" placeholder="Buscar artículos..." class="form-control search-input">
+          <select id="sort" class="form-control">
+            <option value="-date">Más recientes</option>
+            <option value="title">Título A→Z</option>
+          </select>
+          <select id="topic-filter" class="form-control" onchange="filterArticlesByTopic(this.value)">
+            <option value="all">📰 Todos los temas</option>
+            <option value="economia">💰 Economía</option>
+            <option value="politica">🏛️ Política</option>
+            <option value="salud">🏥 Salud</option>
+            <option value="tecnologia">💻 Tecnología</option>
+            <option value="deportes">⚽ Deportes</option>
+            <option value="cultura">🎭 Cultura</option>
+            <option value="internacional">🌍 Internacional</option>
+            <option value="nacional">🏠 Nacional</option>
+            <option value="ciencia">🔬 Ciencia</option>
+            <option value="medio_ambiente">🌱 Medio Ambiente</option>
+          </select>
+          <button id="clear" class="btn btn-secondary">Limpiar</button>
+          <button id="update-all" class="btn btn-success" onclick="updateAllSources()">
+            <i class="fas fa-sync-alt"></i> Actualizar Todo
+          </button>
+          <a href="/search" class="btn btn-secondary">
+            <i class="fas fa-search"></i> Búsqueda Avanzada
+          </a>
+        </div>
+      </div>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="select-all" onchange="toggleAllSelection()"></th>
+            <th>#</th>
+            <th>Título</th>
+            <th>Fuente</th>
+            <th>Autor</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in recent_articles %}
+          <tr class="article-row">
+            <td><input type="checkbox" class="bulk-checkbox" value="{{ a.id }}" onchange="updateBulkActions()"></td>
+            <td>{{ loop.index }}</td>
+            <td>
+              <strong class="article-title">{{ (a.title or '(Sin título)')|short(60) }}</strong>
+              {% if a.summary %}
+              <div class="article-content" style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem;">
+                {{ a.summary|short(80) }}
+              </div>
+              {% endif %}
+              
+              <!-- Clasificación automática por temas -->
+              <div class="topic-tags">
+                {% if a.title %}
+                  {% if 'política' in a.title.lower() or 'gobierno' in a.title.lower() or 'elección' in a.title.lower() %}
+                    <span class="topic-tag politics">Política</span>
+                  {% endif %}
+                  {% if 'economía' in a.title.lower() or 'finanzas' in a.title.lower() or 'mercado' in a.title.lower() %}
+                    <span class="topic-tag economy">Economía</span>
+                  {% endif %}
+                  {% if 'tecnología' in a.title.lower() or 'digital' in a.title.lower() or 'innovación' in a.title.lower() %}
+                    <span class="topic-tag technology">Tecnología</span>
+                  {% endif %}
+                  {% if 'deporte' in a.title.lower() or 'fútbol' in a.title.lower() or 'olimpiada' in a.title.lower() %}
+                    <span class="topic-tag sports">Deportes</span>
+                  {% endif %}
+                {% endif %}
+              </div>
+              
+              <!-- Resumen automático con IA -->
+              {% if a.summary %}
+              <div class="ai-summary">
+                {{ a.summary|short(120) }}
+              </div>
+              {% endif %}
+            </td>
+            <td>
+              {% if a.source %}
+                {% set source_info = rss_sources.get(a.source, {}) %}
+                <span style="background: var(--bg-tertiary); color: var(--text-secondary); padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem;">
+                  {{ source_info.name or a.source }}
+                </span>
+          {% else %}
+                <span style="color: var(--text-muted); font-size: 0.75rem;">Manual</span>
+              {% endif %}
+            </td>
+            <td>{{ a.author or 'N/A' }}</td>
+            <td>{{ a.date_iso|format_date if a.date_iso else 'N/A' }}</td>
+            <td>
+              <div style="display: flex; gap: 0.5rem;">
+                <form action="/toggle-favorite/{{ a.id }}" method="post" style="display: inline;">
+                  <button type="submit" class="btn btn-secondary" style="padding: 0.5rem; font-size: 0.875rem;" title="Marcar como favorito">
+                    <i class="fas fa-star {% if safe_getattr(a, 'is_favorite', False) %}text-warning{% endif %}"></i>
+                  </button>
+                </form>
+                <form action="/delete-article/{{ a.id }}" method="post" style="display: inline;" onsubmit="return confirm('¿Eliminar este artículo?')">
+                  <button type="submit" class="btn btn-secondary" style="padding: 0.5rem; font-size: 0.875rem; color: var(--error);" title="Eliminar artículo">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">No hay artículos disponibles</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      
+      <!-- Paginación -->
+      <div class="pagination">
+        <button onclick="previousPage()" id="prevBtn" disabled>
+          <i class="fas fa-chevron-left"></i> Anterior
+        </button>
+        <span id="pageInfo">Página 1 de 1</span>
+        <button onclick="nextPage()" id="nextBtn" disabled>
+          Siguiente <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Opciones de exportación mejoradas -->
+    <div class="form-section">
+      <h3><i class="fas fa-download"></i> Exportar Datos</h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md);">
+        <div>
+          <label class="filter-label">Formato</label>
+          <select id="export-format" class="form-control">
+            <option value="csv">CSV</option>
+            <option value="json">JSON</option>
+            <option value="pdf">PDF</option>
+            <option value="excel">Excel</option>
+          </select>
+  </div>
+        <div>
+          <label class="filter-label">Rango</label>
+          <select id="export-range" class="form-control">
+            <option value="all">Todos los artículos</option>
+            <option value="filtered">Artículos filtrados</option>
+            <option value="selected">Artículos seleccionados</option>
+            <option value="favorites">Solo favoritos</option>
+          </select>
+        </div>
+        <div>
+          <label class="filter-label">Campos</label>
+          <select id="export-fields" class="form-control">
+            <option value="all">Todos los campos</option>
+            <option value="basic">Básicos (título, fecha, fuente)</option>
+            <option value="summary">Con resumen</option>
+            <option value="full">Completo con contenido</option>
+          </select>
+        </div>
+        <div style="display: flex; align-items: end;">
+          <button onclick="exportData()" class="btn btn-primary" style="width: 100%;">
+            <i class="fas fa-download"></i> Exportar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Centro de notificaciones -->
+    <div class="notification-center" id="notificationCenter"></div>
+  </div>
+
+  <script>
+    // Variables globales
+    let currentPage = 1;
+    let itemsPerPage = 10;
+    let totalItems = 0;
+    let filteredItems = [];
+    let trendsChart = null;
+    let sourcesChart = null;
+    let authorsChart = null;
+    let sentimentChart = null;
+    let isDashboardEditMode = false;
+    let searchHistory = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+    let savedPresets = JSON.parse(localStorage.getItem('savedPresets') || '{}');
+    let activeFilters = {};
+    
+    // Theme toggle mejorado
+    function toggleTheme() {
+      const body = document.body;
+      const icon = document.getElementById('theme-icon');
+      
+      if (body.classList.contains('dark-theme')) {
+        body.classList.remove('dark-theme');
+        icon.className = 'fas fa-moon';
+        localStorage.setItem('theme', 'light');
+        showNotification('Tema claro activado', 'success');
+      } else {
+        body.classList.add('dark-theme');
+        icon.className = 'fas fa-sun';
+        localStorage.setItem('theme', 'dark');
+        showNotification('Tema oscuro activado', 'success');
+      }
+      
+      // Actualizar gráfico si existe
+      if (trendsChart) {
+        updateChartTheme();
+      }
+    }
+    
+    // Load saved theme
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('dark-theme');
+      document.getElementById('theme-icon').className = 'fas fa-sun';
+    }
+    
+    // Sistema de notificaciones mejorado
+    function showNotification(message, type = 'info', duration = 5000) {
+      const notificationCenter = document.getElementById('notificationCenter');
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      
+      const iconMap = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-exclamation-circle',
+        warning: 'fas fa-exclamation-triangle',
+        info: 'fas fa-info-circle'
+      };
+      
+      notification.innerHTML = `
+        <div style="display: flex; align-items: center; gap: var(--space-sm);">
+          <i class="${iconMap[type]}"></i>
+          <span>${message}</span>
+          <button onclick="this.parentElement.parentElement.remove()" style="margin-left: auto; background: none; border: none; color: var(--text-muted); cursor: pointer;">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      `;
+      
+      notificationCenter.appendChild(notification);
+      
+      // Mostrar notificación
+      setTimeout(() => notification.classList.add('show'), 100);
+      
+      // Ocultar notificación
+      setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
+          if (notification.parentElement) {
+            notification.remove();
+          }
+        }, 300);
+      }, duration);
+    }
+    
+     // Filtros avanzados inteligentes
+     function applyFilters() {
+       const source = document.getElementById('filter-source').value;
+       const author = document.getElementById('filter-author').value.toLowerCase();
+       const region = document.getElementById('filter-region').value;
+       const section = document.getElementById('filter-section').value;
+       const period = document.getElementById('filter-period').value;
+       const keywords = document.getElementById('filter-keywords').value.toLowerCase();
+       const favorites = document.getElementById('filter-favorites').checked;
+      
+      // Guardar en historial de búsqueda
+      const searchQuery = { source, author, section, period, keywords, favorites, timestamp: new Date().toISOString() };
+      searchHistory.unshift(searchQuery);
+      searchHistory = searchHistory.slice(0, 10); // Mantener solo los últimos 10
+      localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+      
+      const rows = document.querySelectorAll('.table tbody tr');
+      let visibleCount = 0;
+      
+      rows.forEach(row => {
+        let isVisible = true;
+        
+        // Filtrar por fuente
+        if (source && !row.cells[3].textContent.toLowerCase().includes(source.toLowerCase())) {
+          isVisible = false;
+        }
+        
+        // Filtrar por autor
+        if (author && !row.cells[4].textContent.toLowerCase().includes(author)) {
+          isVisible = false;
+        }
+        
+        // Filtrar por sección
+        if (section && !row.cells[2].textContent.toLowerCase().includes(section.toLowerCase())) {
+          isVisible = false;
+        }
+        
+        // Filtrar por palabras clave
+        if (keywords && !row.innerText.toLowerCase().includes(keywords)) {
+          isVisible = false;
+        }
+        
+        // Filtrar por favoritos
+        if (favorites) {
+          const favoriteBtn = row.querySelector('.fa-star');
+          if (!favoriteBtn || !favoriteBtn.classList.contains('text-warning')) {
+            isVisible = false;
+          }
+        }
+        
+        row.style.display = isVisible ? '' : 'none';
+        if (isVisible) visibleCount++;
+      });
+      
+      updateActiveFilters();
+      showNotification(`${visibleCount} artículo${visibleCount !== 1 ? 's' : ''} encontrado${visibleCount !== 1 ? 's' : ''}`, 'success');
+      updatePagination();
+    }
+    
+     function updateActiveFilters() {
+       const container = document.getElementById('activeFilters');
+       container.innerHTML = '<span style="color: var(--text-muted); font-size: 0.875rem;">Filtros activos:</span>';
+       
+       const filters = {
+         source: document.getElementById('filter-source').value,
+         author: document.getElementById('filter-author').value,
+         region: document.getElementById('filter-region').value,
+         section: document.getElementById('filter-section').value,
+         period: document.getElementById('filter-period').value,
+         keywords: document.getElementById('filter-keywords').value,
+         favorites: document.getElementById('filter-favorites').checked
+       };
+      
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value && value !== '') {
+          const chip = document.createElement('div');
+          chip.className = 'filter-chip';
+          
+           let label = '';
+           switch(key) {
+             case 'source': label = `Fuente: ${value}`; break;
+             case 'author': label = `Autor: ${value}`; break;
+             case 'region': label = `Región: ${value}`; break;
+             case 'section': label = `Sección: ${value}`; break;
+             case 'period': label = `Período: ${value}`; break;
+             case 'keywords': label = `Palabras: ${value}`; break;
+             case 'favorites': label = 'Solo favoritos'; break;
+           }
+          
+          chip.innerHTML = `
+            <span>${label}</span>
+            <button class="chip-remove" onclick="removeFilter('${key}')">
+              <i class="fas fa-times"></i>
+            </button>
+          `;
+          
+          container.appendChild(chip);
+        }
+      });
+    }
+    
+     function removeFilter(filterKey) {
+       switch(filterKey) {
+         case 'source': document.getElementById('filter-source').value = ''; break;
+         case 'author': document.getElementById('filter-author').value = ''; break;
+         case 'region': document.getElementById('filter-region').value = ''; break;
+         case 'section': document.getElementById('filter-section').value = ''; break;
+         case 'period': document.getElementById('filter-period').value = ''; break;
+         case 'keywords': document.getElementById('filter-keywords').value = ''; break;
+         case 'favorites': document.getElementById('filter-favorites').checked = false; break;
+       }
+       updateActiveFilters();
+       applyFilters();
+     }
+     
+     // Filtrar artículos por tema seleccionado
+     function filterArticlesByTopic(topic) {
+       const rows = document.querySelectorAll('.article-row');
+       const topicKeywords = {
+         'all': [],
+         'economia': ['economía', 'económico', 'finanzas', 'dinero', 'inversión', 'mercado', 'bolsa', 'inflación', 'pib', 'desempleo', 'salario', 'presupuesto'],
+         'politica': ['política', 'político', 'gobierno', 'presidente', 'ministro', 'congreso', 'senado', 'elecciones', 'votación', 'partido', 'democracia'],
+         'salud': ['salud', 'médico', 'hospital', 'enfermedad', 'vacuna', 'covid', 'pandemia', 'tratamiento', 'medicina', 'cirugía', 'doctor'],
+         'tecnologia': ['tecnología', 'tecnológico', 'digital', 'internet', 'software', 'hardware', 'aplicación', 'app', 'smartphone', 'computadora', 'inteligencia artificial'],
+         'deportes': ['deporte', 'deportivo', 'fútbol', 'futbol', 'baloncesto', 'tenis', 'olímpico', 'mundial', 'campeonato', 'liga', 'equipo'],
+         'cultura': ['cultura', 'cultural', 'arte', 'música', 'cine', 'película', 'libro', 'literatura', 'teatro', 'exposición', 'festival'],
+         'internacional': ['internacional', 'mundial', 'global', 'país', 'nación', 'extranjero', 'diplomacia', 'onu', 'naciones unidas'],
+         'nacional': ['nacional', 'local', 'región', 'ciudad', 'municipal', 'provincial', 'estatal'],
+         'ciencia': ['ciencia', 'científico', 'investigación', 'estudio', 'descubrimiento', 'laboratorio', 'universidad', 'académico'],
+         'medio_ambiente': ['medio ambiente', 'ambiental', 'clima', 'cambio climático', 'contaminación', 'sostenible', 'ecológico', 'naturaleza']
+       };
+       
+       const keywords = topicKeywords[topic] || [];
+       
+       rows.forEach(row => {
+         if (topic === 'all' || keywords.length === 0) {
+           // Mostrar todos los artículos
+           row.style.display = '';
+         } else {
+           // Buscar palabras clave en el título y contenido
+           const titleElement = row.querySelector('.article-title');
+           const contentElement = row.querySelector('.article-content');
+           
+           if (titleElement && contentElement) {
+             const titleText = titleElement.textContent.toLowerCase();
+             const contentText = contentElement.textContent.toLowerCase();
+             const fullText = titleText + ' ' + contentText;
+             
+             // Verificar si alguna palabra clave está presente
+             const hasKeyword = keywords.some(keyword => 
+               fullText.includes(keyword.toLowerCase())
+             );
+             
+             row.style.display = hasKeyword ? '' : 'none';
+           }
+         }
+       });
+       
+       // Mostrar mensaje de resultado
+       const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
+       const totalRows = rows.length;
+       
+       if (topic === 'all') {
+         showToast(`Mostrando todos los artículos (${totalRows})`, 'info');
+       } else {
+         const topicNames = {
+           'economia': 'Economía',
+           'politica': 'Política',
+           'salud': 'Salud',
+           'tecnologia': 'Tecnología',
+           'deportes': 'Deportes',
+           'cultura': 'Cultura',
+           'internacional': 'Internacional',
+           'nacional': 'Nacional',
+           'ciencia': 'Ciencia',
+           'medio_ambiente': 'Medio Ambiente'
+         };
+         
+         const topicName = topicNames[topic] || topic;
+         showToast(`Filtrado por tema "${topicName}": ${visibleRows.length} de ${totalRows} artículos`, 'info');
+       }
+     }
+    
+    // Función para actualizar todas las fuentes RSS
+    function updateAllSources() {
+      const button = document.getElementById('update-all');
+      const originalText = button.innerHTML;
+      
+      button.disabled = true;
+      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualizando...';
+      
+      showToast('Iniciando actualización de todas las fuentes RSS...', 'info');
+      
+      fetch('/update-all', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          limit: 10,
+          days_back: 30
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showToast(`✅ Actualización completada: ${data.total_articles} artículos nuevos de ${data.sources_processed} fuentes`, 'success');
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        } else {
+          showToast(`❌ Error en la actualización: ${data.error}`, 'error');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showToast('❌ Error de conexión durante la actualización', 'error');
+      })
+      .finally(() => {
+        button.disabled = false;
+        button.innerHTML = originalText;
+      });
+    }
+    
+    // Autocompletado inteligente
+    function showAuthorSuggestions(query) {
+      const container = document.getElementById('authorSuggestions');
+      if (query.length < 2) {
+        container.style.display = 'none';
+        return;
+      }
+      
+      // Simular sugerencias de autores
+      const suggestions = ['Redacción', 'Equipo Editorial', 'Corresponsal', 'Reportero', 'Analista', 'Especialista']
+        .filter(author => author.toLowerCase().includes(query.toLowerCase()));
+      
+      container.innerHTML = '';
+      suggestions.forEach(author => {
+        const item = document.createElement('div');
+        item.className = 'suggestion-item';
+        item.innerHTML = author.replace(new RegExp(query, 'gi'), `<span class="suggestion-highlight">$&</span>`);
+        item.onclick = () => {
+          document.getElementById('filter-author').value = author;
+          container.style.display = 'none';
+          updateActiveFilters();
+        };
+        container.appendChild(item);
+      });
+      
+      container.style.display = suggestions.length > 0 ? 'block' : 'none';
+    }
+    
+    function showKeywordSuggestions(query) {
+      const container = document.getElementById('keywordSuggestions');
+      if (query.length < 2) {
+        container.style.display = 'none';
+        return;
+      }
+      
+      // Simular sugerencias de palabras clave
+      const suggestions = ['política', 'economía', 'tecnología', 'internacional', 'deportes', 'cultura', 'salud', 'ciencia']
+        .filter(keyword => keyword.toLowerCase().includes(query.toLowerCase()));
+      
+      container.innerHTML = '';
+      suggestions.forEach(keyword => {
+        const item = document.createElement('div');
+        item.className = 'suggestion-item';
+        item.innerHTML = keyword.replace(new RegExp(query, 'gi'), `<span class="suggestion-highlight">$&</span>`);
+        item.onclick = () => {
+          document.getElementById('filter-keywords').value = keyword;
+          container.style.display = 'none';
+          updateActiveFilters();
+        };
+        container.appendChild(item);
+      });
+      
+      container.style.display = suggestions.length > 0 ? 'block' : 'none';
+    }
+    
+    // Presets múltiples
+    function loadPreset(presetName) {
+      const presets = {
+        default: { source: '', author: '', section: '', period: '', keywords: '', favorites: false },
+        politics: { source: '', author: '', section: 'Política', period: '', keywords: 'política gobierno', favorites: false },
+        economy: { source: '', author: '', section: 'Economía', period: '', keywords: 'economía finanzas', favorites: false },
+        technology: { source: '', author: '', section: 'Tecnología', period: '', keywords: 'tecnología digital', favorites: false }
+      };
+      
+      const preset = presets[presetName] || presets.default;
+      
+      document.getElementById('filter-source').value = preset.source;
+      document.getElementById('filter-author').value = preset.author;
+      document.getElementById('filter-section').value = preset.section;
+      document.getElementById('filter-period').value = preset.period;
+      document.getElementById('filter-keywords').value = preset.keywords;
+      document.getElementById('filter-favorites').checked = preset.favorites;
+      
+      // Actualizar UI de presets
+      document.querySelectorAll('.preset-item').forEach(item => item.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      updateActiveFilters();
+      applyFilters();
+      showNotification(`Preset "${presetName}" cargado`, 'success');
+    }
+    
+    function saveNewPreset() {
+      const name = prompt('Nombre del nuevo preset:');
+      if (!name) return;
+      
+      const preset = {
+        source: document.getElementById('filter-source').value,
+        author: document.getElementById('filter-author').value,
+        section: document.getElementById('filter-section').value,
+        period: document.getElementById('filter-period').value,
+        keywords: document.getElementById('filter-keywords').value,
+        favorites: document.getElementById('filter-favorites').checked
+      };
+      
+      savedPresets[name] = preset;
+      localStorage.setItem('savedPresets', JSON.stringify(savedPresets));
+      
+      // Agregar al UI
+      const presetItem = document.createElement('div');
+      presetItem.className = 'preset-item';
+      presetItem.textContent = name;
+      presetItem.onclick = () => loadPreset(name);
+      document.getElementById('presetsList').appendChild(presetItem);
+      
+      showNotification(`Preset "${name}" guardado`, 'success');
+    }
+    
+    function showSearchHistory() {
+      const container = document.getElementById('keywordSuggestions');
+      container.innerHTML = '';
+      
+      if (searchHistory.length === 0) {
+        container.innerHTML = '<div class="suggestion-item">No hay historial de búsquedas</div>';
+      } else {
+        searchHistory.forEach((search, index) => {
+          const item = document.createElement('div');
+          item.className = 'history-item';
+          item.innerHTML = `
+            <span>${Object.values(search).filter(v => v && v !== '').join(', ')}</span>
+            <span class="history-time">${new Date(search.timestamp).toLocaleTimeString()}</span>
+          `;
+          item.onclick = () => {
+            document.getElementById('filter-source').value = search.source || '';
+            document.getElementById('filter-author').value = search.author || '';
+            document.getElementById('filter-section').value = search.section || '';
+            document.getElementById('filter-period').value = search.period || '';
+            document.getElementById('filter-keywords').value = search.keywords || '';
+            document.getElementById('filter-favorites').checked = search.favorites || false;
+            container.style.display = 'none';
+            updateActiveFilters();
+            applyFilters();
+          };
+          container.appendChild(item);
+        });
+      }
+      
+      container.style.display = 'block';
+    }
+    
+     function clearFilters() {
+       document.getElementById('filter-source').value = '';
+       document.getElementById('filter-author').value = '';
+       document.getElementById('filter-region').value = '';
+       document.getElementById('filter-section').value = '';
+       document.getElementById('filter-period').value = '';
+       document.getElementById('filter-keywords').value = '';
+       document.getElementById('filter-favorites').checked = false;
+      
+      const rows = document.querySelectorAll('.table tbody tr');
+      rows.forEach(row => {
+        row.style.display = '';
+      });
+      
+      showNotification('Filtros limpiados', 'success');
+      updatePagination();
+    }
+    
+    function saveFilterPreset() {
+      const filters = {
+        source: document.getElementById('filter-source').value,
+        author: document.getElementById('filter-author').value,
+        section: document.getElementById('filter-section').value,
+        period: document.getElementById('filter-period').value,
+        keywords: document.getElementById('filter-keywords').value,
+        favorites: document.getElementById('filter-favorites').checked
+      };
+      
+      localStorage.setItem('filterPreset', JSON.stringify(filters));
+      showNotification('Preset de filtros guardado', 'success');
+    }
+    
+    function loadFilterPreset() {
+      const saved = localStorage.getItem('filterPreset');
+      if (saved) {
+        const filters = JSON.parse(saved);
+        document.getElementById('filter-source').value = filters.source || '';
+        document.getElementById('filter-author').value = filters.author || '';
+        document.getElementById('filter-section').value = filters.section || '';
+        document.getElementById('filter-period').value = filters.period || '';
+        document.getElementById('filter-keywords').value = filters.keywords || '';
+        document.getElementById('filter-favorites').checked = filters.favorites || false;
+      }
+    }
+    
+    // Paginación
+    function updatePagination() {
+      const visibleRows = document.querySelectorAll('.table tbody tr:not([style*="display: none"])');
+      totalItems = visibleRows.length;
+      const totalPages = Math.ceil(totalItems / itemsPerPage);
+      
+      document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
+      document.getElementById('prevBtn').disabled = currentPage === 1;
+      document.getElementById('nextBtn').disabled = currentPage === totalPages;
+      
+      // Mostrar solo los elementos de la página actual
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      
+      visibleRows.forEach((row, index) => {
+        if (index >= startIndex && index < endIndex) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+    
+    function previousPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        updatePagination();
+      }
+    }
+    
+    function nextPage() {
+      const totalPages = Math.ceil(totalItems / itemsPerPage);
+      if (currentPage < totalPages) {
+        currentPage++;
+        updatePagination();
+      }
+    }
+    
+    // Exportación de datos
+    function exportData() {
+      const format = document.getElementById('export-format').value;
+      const range = document.getElementById('export-range').value;
+      const fields = document.getElementById('export-fields').value;
+      
+      let url = `/download/${format}?`;
+      
+      if (range === 'filtered') {
+        // Exportar artículos filtrados
+        const source = document.getElementById('filter-source').value;
+        const author = document.getElementById('filter-author').value;
+        const section = document.getElementById('filter-section').value;
+        
+        if (source) url += `source=${source}&`;
+        if (author) url += `author=${author}&`;
+        if (section) url += `section=${section}&`;
+      } else if (range === 'favorites') {
+        url += 'favorites=true&';
+      }
+      
+      if (fields !== 'all') {
+        url += `fields=${fields}&`;
+      }
+      
+      showNotification(`Exportando datos en formato ${format.toUpperCase()}...`, 'info');
+      window.open(url, '_blank');
+    }
+    
+    // Dashboard personalizable
+    function toggleDashboardEdit() {
+      isDashboardEditMode = !isDashboardEditMode;
+      const grid = document.getElementById('widgetsGrid');
+      
+      if (isDashboardEditMode) {
+        grid.classList.add('edit-mode');
+        showNotification('Modo de edición activado. Arrastra los widgets para reorganizarlos.', 'info');
+      } else {
+        grid.classList.remove('edit-mode');
+        showNotification('Modo de edición desactivado.', 'success');
+        saveDashboardLayout();
+      }
+    }
+    
+    function resetDashboard() {
+      if (confirm('¿Restablecer el dashboard a la configuración por defecto?')) {
+        localStorage.removeItem('dashboardLayout');
+        location.reload();
+      }
+    }
+    
+    function toggleWidget(widgetId) {
+      const widget = document.querySelector(`[data-widget="${widgetId}"]`);
+      widget.classList.toggle('hidden');
+      saveDashboardLayout();
+    }
+    
+    function saveDashboardLayout() {
+      const widgets = Array.from(document.querySelectorAll('.widget')).map(w => ({
+        id: w.dataset.widget,
+        visible: !w.classList.contains('hidden')
+      }));
+      localStorage.setItem('dashboardLayout', JSON.stringify(widgets));
+    }
+    
+    function loadDashboardLayout() {
+      const saved = localStorage.getItem('dashboardLayout');
+      if (saved) {
+        const layout = JSON.parse(saved);
+        layout.forEach(item => {
+          if (!item.visible) {
+            const widget = document.querySelector(`[data-widget="${item.id}"]`);
+            if (widget) widget.classList.add('hidden');
+          }
+        });
+      }
+    }
+    
+    // Gráficos avanzados
+    function initTrendsChart() {
+      const canvas = document.getElementById('trendsChart');
+      if (!canvas) {
+        console.error('Canvas trendsChart no encontrado');
+        return;
+      }
+      
+      const ctx = canvas.getContext('2d');
+      
+      const data = {
+        labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+        datasets: [{
+          label: 'Artículos por día',
+          data: [12, 19, 8, 15, 22, 18, 25],
+          borderColor: 'rgb(99, 102, 241)',
+          backgroundColor: 'rgba(99, 102, 241, 0.1)',
+          tension: 0.4,
+          fill: true
+        }]
+      };
+      
+      const config = {
+        type: 'line',
+        data: data,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(0, 0, 0, 0.1)' }
+            },
+            x: {
+              grid: { color: 'rgba(0, 0, 0, 0.1)' }
+            }
+          }
+        }
+      };
+      
+      try {
+        trendsChart = new Chart(ctx, config);
+        console.log('Gráfico de tendencias inicializado correctamente');
+      } catch (error) {
+        console.error('Error inicializando gráfico de tendencias:', error);
+      }
+    }
+    
+    function initSourcesChart() {
+      const canvas = document.getElementById('sourcesChart');
+      if (!canvas) {
+        console.error('Canvas sourcesChart no encontrado');
+        return;
+      }
+      
+      const ctx = canvas.getContext('2d');
+      
+      const data = {
+        labels: ['BBC Mundo', 'CNN Español', 'El País', 'Infobae', 'El Universal'],
+        datasets: [{
+          data: [35, 25, 20, 15, 5],
+          backgroundColor: [
+            'rgba(99, 102, 241, 0.8)',
+            'rgba(6, 182, 212, 0.8)',
+            'rgba(16, 185, 129, 0.8)',
+            'rgba(245, 158, 11, 0.8)',
+            'rgba(239, 68, 68, 0.8)'
+          ],
+          borderWidth: 2,
+          borderColor: '#fff'
+        }]
+      };
+      
+      const config = {
+        type: 'doughnut',
+        data: data,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                padding: 20,
+                usePointStyle: true
+              }
+            }
+          }
+        }
+      };
+      
+      try {
+        sourcesChart = new Chart(ctx, config);
+        console.log('Gráfico de fuentes inicializado correctamente');
+      } catch (error) {
+        console.error('Error inicializando gráfico de fuentes:', error);
+      }
+    }
+    
+    function initAuthorsChart() {
+      const canvas = document.getElementById('authorsChart');
+      if (!canvas) {
+        console.error('Canvas authorsChart no encontrado');
+        return;
+      }
+      
+      const ctx = canvas.getContext('2d');
+      
+      const data = {
+        labels: ['Redacción', 'Equipo Editorial', 'Corresponsal', 'Reportero', 'Analista'],
+        datasets: [{
+          label: 'Artículos por autor',
+          data: [45, 32, 28, 20, 15],
+          backgroundColor: 'rgba(99, 102, 241, 0.8)',
+          borderColor: 'rgb(99, 102, 241)',
+          borderWidth: 1
+        }]
+      };
+      
+      const config = {
+        type: 'bar',
+        data: data,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: { color: 'rgba(0, 0, 0, 0.1)' }
+            },
+            x: {
+              grid: { display: false }
+            }
+          }
+        }
+      };
+      
+      try {
+        authorsChart = new Chart(ctx, config);
+        console.log('Gráfico de autores inicializado correctamente');
+      } catch (error) {
+        console.error('Error inicializando gráfico de autores:', error);
+      }
+    }
+    
+    function initSentimentChart() {
+      const canvas = document.getElementById('sentimentChart');
+      if (!canvas) {
+        console.error('Canvas sentimentChart no encontrado');
+        return;
+      }
+      
+      const ctx = canvas.getContext('2d');
+      
+      const data = {
+        labels: ['Positivo', 'Neutral', 'Negativo'],
+        datasets: [{
+          data: [40, 45, 15],
+          backgroundColor: [
+            'rgba(16, 185, 129, 0.8)',
+            'rgba(99, 102, 241, 0.8)',
+            'rgba(239, 68, 68, 0.8)'
+          ],
+          borderWidth: 2,
+          borderColor: '#fff'
+        }]
+      };
+      
+      const config = {
+        type: 'pie',
+        data: data,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                padding: 20,
+                usePointStyle: true
+              }
+            }
+          }
+        }
+      };
+      
+      try {
+        sentimentChart = new Chart(ctx, config);
+        console.log('Gráfico de sentimiento inicializado correctamente');
+      } catch (error) {
+        console.error('Error inicializando gráfico de sentimiento:', error);
+      }
+    }
+    
+    function initHeatmap() {
+      const container = document.getElementById('heatmapContainer');
+      if (!container) {
+        console.error('Container heatmapContainer no encontrado');
+        return;
+      }
+      
+      container.innerHTML = '';
+      
+      // Generar heatmap de 24 horas x 7 días
+      const hours = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', 
+                    '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'];
+      
+      hours.forEach(hour => {
+        const cell = document.createElement('div');
+        cell.className = 'heatmap-cell';
+        cell.title = `${hour}:00 - ${Math.floor(Math.random() * 20)} artículos`;
+        
+        // Simular datos de actividad
+        const activity = Math.random();
+        const intensity = Math.floor(activity * 5) + 1;
+        
+        cell.style.backgroundColor = `rgba(99, 102, 241, ${0.2 + activity * 0.8})`;
+        cell.style.opacity = 0.3 + activity * 0.7;
+        
+        container.appendChild(cell);
+      });
+      
+      console.log('Heatmap inicializado correctamente');
+    }
+    
+    function initWordCloud() {
+      const container = document.getElementById('wordcloudContainer');
+      if (!container) {
+        console.error('Container wordcloudContainer no encontrado');
+        return;
+      }
+      
+      container.innerHTML = '';
+      
+      const words = [
+        { text: 'Política', weight: 15, color: 'rgba(239, 68, 68, 0.8)' },
+        { text: 'Economía', weight: 12, color: 'rgba(245, 158, 11, 0.8)' },
+        { text: 'Tecnología', weight: 10, color: 'rgba(6, 182, 212, 0.8)' },
+        { text: 'Internacional', weight: 8, color: 'rgba(16, 185, 129, 0.8)' },
+        { text: 'Deportes', weight: 6, color: 'rgba(99, 102, 241, 0.8)' },
+        { text: 'Cultura', weight: 5, color: 'rgba(139, 92, 246, 0.8)' },
+        { text: 'Salud', weight: 4, color: 'rgba(236, 72, 153, 0.8)' },
+        { text: 'Ciencia', weight: 3, color: 'rgba(34, 197, 94, 0.8)' }
+      ];
+      
+      words.forEach(word => {
+        const wordElement = document.createElement('div');
+        wordElement.className = 'word-item';
+        wordElement.textContent = word.text;
+        wordElement.style.backgroundColor = word.color;
+        wordElement.style.fontSize = `${word.weight}px`;
+        wordElement.onclick = () => {
+          document.getElementById('filter-keywords').value = word.text;
+          applyFilters();
+        };
+        container.appendChild(wordElement);
+      });
+      
+      console.log('Nube de palabras inicializada correctamente');
+    }
+    
+    function updateTrendsPeriod(days) {
+      if (trendsChart) {
+        // Simular actualización de datos
+        const newData = Array.from({length: days}, () => Math.floor(Math.random() * 30) + 5);
+        trendsChart.data.datasets[0].data = newData;
+        trendsChart.data.labels = Array.from({length: days}, (_, i) => `Día ${i + 1}`);
+        trendsChart.update();
+        showNotification(`Tendencias actualizadas para los últimos ${days} días`, 'success');
+      }
+    }
+    
+    function updateDailySummary() {
+      // Simular datos del resumen diario
+      document.getElementById('topNews').textContent = 'Nueva política económica anunciada';
+      document.getElementById('topTopic').textContent = 'Economía';
+      document.getElementById('topSource').textContent = 'BBC Mundo';
+    }
+    
+    function updateChartTheme() {
+      if (trendsChart) {
+        const isDark = document.body.classList.contains('dark-theme');
+        const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+        
+        trendsChart.options.scales.y.grid.color = gridColor;
+        trendsChart.options.scales.x.grid.color = gridColor;
+        trendsChart.update();
+      }
+    }
+    
+    // Toast notifications
+    function showToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+          <span>${message}</span>
+        </div>
+      `;
+      
+      document.body.appendChild(toast);
+      
+      // Show toast
+      setTimeout(() => toast.classList.add('show'), 100);
+      
+      // Hide toast
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => document.body.removeChild(toast), 300);
+      }, 3000);
+    }
+    
+    // Loading states
+    function setLoading(button, loading = true) {
+      if (loading) {
+        button.classList.add('loading');
+        button.disabled = true;
+      } else {
+        button.classList.remove('loading');
+        button.disabled = false;
+      }
+    }
+    
+    // Form submissions with loading
+    document.querySelectorAll('form').forEach(form => {
+      form.addEventListener('submit', function(e) {
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+          setLoading(submitBtn, true);
+          
+          // Simulate loading time
+          setTimeout(() => {
+            setLoading(submitBtn, false);
+          }, 2000);
+        }
+      });
+    });
+    
+    // Bulk actions
+    function updateBulkActions() {
+      const checkboxes = document.querySelectorAll('.bulk-checkbox:checked');
+      const selectAll = document.getElementById('select-all');
+      
+      selectAll.checked = checkboxes.length === document.querySelectorAll('.bulk-checkbox').length;
+      selectAll.indeterminate = checkboxes.length > 0 && checkboxes.length < document.querySelectorAll('.bulk-checkbox').length;
+      
+      // Show bulk actions if any selected
+      if (checkboxes.length > 0) {
+        showToast(`${checkboxes.length} artículo${checkboxes.length !== 1 ? 's' : ''} seleccionado${checkboxes.length !== 1 ? 's' : ''}`, 'info');
+      }
+    }
+    
+    function toggleAllSelection() {
+      const selectAll = document.getElementById('select-all');
+      const checkboxes = document.querySelectorAll('.bulk-checkbox');
+      
+      checkboxes.forEach(cb => {
+        cb.checked = selectAll.checked;
+      });
+      
+      updateBulkActions();
+    }
+    
+    // Search functionality with debounce
+    let searchTimeout;
+    document.getElementById('q').addEventListener('input', function() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        const term = this.value.toLowerCase();
+        const rows = document.querySelectorAll('.table tbody tr');
+        let visibleCount = 0;
+        
+        rows.forEach(row => {
+          const text = row.innerText.toLowerCase();
+          const isVisible = text.includes(term);
+          row.style.display = isVisible ? '' : 'none';
+          if (isVisible) visibleCount++;
+        });
+        
+        // Show search results count
+        if (term) {
+          showToast(`${visibleCount} resultado${visibleCount !== 1 ? 's' : ''} encontrado${visibleCount !== 1 ? 's' : ''}`, 'info');
+        }
+      }, 300);
+    });
+    
+    // Clear search
+    document.getElementById('clear').addEventListener('click', function() {
+      document.getElementById('q').value = '';
+      document.getElementById('sort').value = '-date';
+      document.getElementById('topic-filter').value = 'all';
+      
+      const rows = document.querySelectorAll('.table tbody tr');
+      rows.forEach(row => {
+        row.style.display = '';
+      });
+      
+      showToast('Filtros limpiados', 'success');
+    });
+    
+    // Sort functionality
+    document.getElementById('sort').addEventListener('change', function() {
+      const sortBy = this.value;
+      const tbody = document.querySelector('.table tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      
+      rows.sort((a, b) => {
+        if (sortBy === 'title') {
+          const titleA = a.cells[2].textContent.trim().toLowerCase();
+          const titleB = b.cells[2].textContent.trim().toLowerCase();
+          return titleA.localeCompare(titleB);
+        } else {
+          // Sort by date (most recent first)
+          const dateA = a.cells[5].textContent.trim();
+          const dateB = b.cells[5].textContent.trim();
+          return dateB.localeCompare(dateA);
+        }
+      });
+      
+      // Reorder rows
+      rows.forEach(row => tbody.appendChild(row));
+      
+      showToast(`Ordenado por ${sortBy === 'title' ? 'título' : 'fecha'}`, 'success');
+    });
+    
+    // Auto-refresh functionality
+    let autoRefreshInterval;
+    function startAutoRefresh() {
+      autoRefreshInterval = setInterval(() => {
+        showToast('Actualizando datos...', 'info');
+        // Here you would typically make an AJAX request to refresh data
+        setTimeout(() => {
+          showToast('Datos actualizados', 'success');
+        }, 1000);
+      }, 300000); // 5 minutes
+    }
+    
+    function stopAutoRefresh() {
+      if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        showToast('Auto-actualización detenida', 'info');
+      }
+    }
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      // Ctrl/Cmd + K for search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('q').focus();
+      }
+      
+      // Escape to clear search
+      if (e.key === 'Escape') {
+        document.getElementById('q').value = '';
+        document.getElementById('clear').click();
+      }
+      
+      // Ctrl/Cmd + A to select all
+      if ((e.ctrlKey || e.metaKey) && e.key === 'a' && e.target.tagName !== 'INPUT') {
+        e.preventDefault();
+        document.getElementById('select-all').click();
+      }
+    });
+    
+    // Función de debug para verificar elementos
+    function debugElements() {
+      const elements = [
+        'trendsChart', 'sourcesChart', 'authorsChart', 'sentimentChart',
+        'heatmapContainer', 'wordcloudContainer'
+      ];
+      
+      console.log('=== DEBUG: Verificando elementos del dashboard ===');
+      elements.forEach(id => {
+        const element = document.getElementById(id);
+        console.log(`${id}: ${element ? '✅ Encontrado' : '❌ No encontrado'}`);
+      });
+      
+      console.log('Chart.js disponible:', typeof Chart !== 'undefined');
+      console.log('=== FIN DEBUG ===');
+    }
+    
+    // Función para esperar a que Chart.js esté disponible
+    function waitForChartJS() {
+      return new Promise((resolve) => {
+        const checkChart = () => {
+          if (typeof Chart !== 'undefined') {
+            console.log('✅ Chart.js está disponible');
+            resolve();
+          } else {
+            console.log('⏳ Esperando Chart.js...');
+            setTimeout(checkChart, 100);
+          }
+        };
+        checkChart();
+      });
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      // Debug inicial
+      debugElements();
+      
+      // Inicializar componentes que no dependen de Chart.js inmediatamente
+      initHeatmap();
+      initWordCloud();
+      
+      // Cargar configuraciones guardadas
+      loadDashboardLayout();
+      loadFilterPreset();
+      
+      // Inicializar paginación
+      updatePagination();
+      
+      // Actualizar resumen diario
+      updateDailySummary();
+      
+      // Esperar a que Chart.js esté disponible y luego inicializar gráficos
+      waitForChartJS().then(() => {
+        console.log('Inicializando gráficos con Chart.js...');
+        // Inicializar todos los gráficos
+        initTrendsChart();
+        initSourcesChart();
+        initAuthorsChart();
+        initSentimentChart();
+        
+        showNotification('📊 Gráficos del dashboard cargados correctamente', 'success');
+      }).catch(() => {
+        console.error('Chart.js no está disponible');
+        showNotification('⚠️ Los gráficos no están disponibles - verifica tu conexión', 'warning');
+      });
+      
+      // Mostrar mensaje de bienvenida
+      setTimeout(() => {
+        showNotification('¡Bienvenido a NewsFlow Pro!', 'success');
+      }, 500);
+      
+      // Mostrar tips de uso
+      setTimeout(() => {
+        showNotification('💡 Tip: Usa los filtros avanzados para encontrar artículos específicos', 'info');
+      }, 2000);
+      
+      setTimeout(() => {
+        showNotification('⌨️ Atajos: Ctrl+K para buscar, Ctrl+A para seleccionar todo', 'info');
+      }, 4000);
+      
+      setTimeout(() => {
+        showNotification('🎨 Nuevo: Dashboard personalizable con gráficos avanzados', 'info');
+      }, 6000);
+      
+      // Auto-refresh cada 5 minutos
+      setInterval(() => {
+        showNotification('🔄 Actualizando datos automáticamente...', 'info', 2000);
+      }, 300000);
+      
+      // Cerrar sugerencias al hacer clic fuera
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('.autocomplete-container')) {
+          document.querySelectorAll('.autocomplete-suggestions').forEach(s => s.style.display = 'none');
+        }
+      });
+    });
+    
+    // Smooth scrolling for better UX
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
+    });
+    
+    // Integraciones (placeholder para futuras implementaciones)
+    function connectSlack() {
+      showNotification('🔗 Integración con Slack en desarrollo', 'info');
+    }
+    
+    function connectTelegram() {
+      showNotification('📱 Integración con Telegram en desarrollo', 'info');
+    }
+    
+    function connectEmail() {
+      showNotification('📧 Integración con correo electrónico en desarrollo', 'info');
+    }
+    
+    // Scroll infinito (alternativa a paginación)
+    function enableInfiniteScroll() {
+      const tableContainer = document.querySelector('.table-container');
+      let isLoading = false;
+      
+      tableContainer.addEventListener('scroll', function() {
+        if (isLoading) return;
+        
+        const { scrollTop, scrollHeight, clientHeight } = tableContainer;
+        
+        if (scrollTop + clientHeight >= scrollHeight - 100) {
+          isLoading = true;
+          showNotification('Cargando más artículos...', 'info', 2000);
+          
+          // Simular carga de más datos
+          setTimeout(() => {
+            isLoading = false;
+            showNotification('Más artículos cargados', 'success', 2000);
+          }, 1000);
+        }
+      });
+    }
+    
+    // Activar scroll infinito si se desea
+    // enableInfiniteScroll();
+  </script>
+</body>
+</html>

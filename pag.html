@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BBC Mundo – Visor de noticias (CSV)</title>
+  <style>
+    :root{
+      --bg:#0b0f14; --card:#121821; --muted:#9fb0c3; --text:#eaf2fb; --acc:#6ea8fe; --border:#1c2530;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;
+      background:linear-gradient(180deg,#0b0f14 0%, #0e141b 100%);
+      color:var(--text);
+    }
+    header{
+      padding:24px 16px; border-bottom:1px solid var(--border);
+      position:sticky; top:0; background:rgba(11,15,20,.9); backdrop-filter: blur(8px); z-index:10;
+    }
+    .container{max-width:1100px; margin:0 auto; padding:0 8px;}
+    h1{margin:0 0 8px 0; font-size:1.4rem; letter-spacing:.2px}
+    p.subtitle{margin:0; color:var(--muted); font-size:.95rem}
+
+    .toolbar{
+      margin-top:14px; display:grid; grid-template-columns:1fr 220px 180px 160px; gap:10px;
+    }
+    .toolbar input[type="search"], .toolbar select{
+      width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border);
+      background:#0f1520; color:var(--text); outline:none;
+    }
+    .toolbar input[type="file"]{display:none}
+    .btn{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 14px; border-radius:10px; border:1px solid var(--border);
+      background:#101725; color:var(--text); cursor:pointer; text-decoration:none; justify-content:center;
+    }
+    .btn:hover{background:#142033}
+
+    .drop{
+      margin:14px 0 0; padding:16px; border:2px dashed #2a3a4f; border-radius:12px;
+      background:#0f1520; color:var(--muted); text-align:center; transition:.2s;
+    }
+    .drop.drag{border-color:var(--acc); color:var(--text); background:#101a2b}
+
+    main{padding:18px 16px;}
+    .grid{
+      display:grid; gap:14px; grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    }
+    .card{
+      background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden;
+      display:flex; flex-direction:column; min-height:220px;
+      box-shadow:0 0 0 rgba(0,0,0,0); transition:box-shadow .2s, transform .08s;
+    }
+    .card:hover{box-shadow:0 8px 28px rgba(0,0,0,.25); transform:translateY(-1px)}
+    .thumb{width:100%; height:160px; background:#0f1520 center/cover no-repeat}
+    .content{padding:14px}
+    .title{margin:0 0 8px 0; font-size:1.02rem; line-height:1.25}
+    .title a{color:var(--text); text-decoration:none}
+    .title a:hover{color:var(--acc)}
+    .meta{font-size:.85rem; color:var(--muted); display:flex; flex-wrap:wrap; gap:8px}
+    .meta span{display:inline-flex; align-items:center; gap:6px; background:#0f1520; border:1px solid var(--border);
+      padding:4px 8px; border-radius:999px}
+    .desc{margin-top:10px; color:#cfe1f5; font-size:.93rem}
+    .empty{margin:40px auto; text-align:center; color:var(--muted)}
+    footer{padding:18px 16px; color:var(--muted); border-top:1px solid var(--border)}
+    .count{margin:10px 0 0; color:var(--muted); font-size:.9rem}
+    .controls-inline{display:flex; gap:10px; align-items:center}
+
+    @media (max-width:900px){
+      .toolbar{grid-template-columns:1fr 1fr; grid-auto-rows:auto}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>BBC Mundo — Visor de CSV</h1>
+      <p class="subtitle">Carga <code>bbc_mundo_noticias.csv</code> para ver las noticias como tarjetas. Busca, ordena y limita resultados.</p>
+
+      <div class="toolbar">
+        <input id="q" type="search" placeholder="Buscar por título, resumen, autor o sección…" aria-label="Buscar" />
+        <select id="sort" aria-label="Ordenar por">
+          <option value="fecha_desc">Fecha (más reciente)</option>
+          <option value="fecha_asc">Fecha (más antigua)</option>
+          <option value="titulo_asc">Título (A→Z)</option>
+          <option value="titulo_desc">Título (Z→A)</option>
+        </select>
+        <select id="limit" aria-label="Límite de resultados">
+          <option value="0">Mostrar todos</option>
+          <option>12</option><option>24</option><option>48</option><option>96</option>
+        </select>
+        <label class="btn" for="fileInput">📂 Abrir CSV</label>
+        <input id="fileInput" type="file" accept=".csv,text/csv" />
+      </div>
+
+      <div id="drop" class="drop" aria-label="Dropzone">
+        Arrastra aquí tu archivo <strong>CSV</strong> o haz clic en “Abrir CSV”.
+      </div>
+      <div class="count" id="count"></div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="grid" class="grid" role="list"></div>
+    <div id="empty" class="empty" hidden>Sin datos. Carga un CSV para comenzar.</div>
+  </main>
+
+  <footer class="container">
+    <small>Este visor funciona localmente en tu navegador. No sube archivos a ningún servidor.</small>
+  </footer>
+
+  <script>
+    // --- Utilidades ---
+    const el = sel => document.querySelector(sel);
+    const grid = el('#grid'), empty = el('#empty'), count = el('#count');
+    const fileInput = el('#fileInput'), drop = el('#drop');
+    const q = el('#q'), sortSel = el('#sort'), limitSel = el('#limit');
+
+    /** Parseo CSV sencillo (sin librerías): maneja comillas dobles, separador coma, saltos de línea */
+    function parseCSV(text){
+      const rows = [];
+      let cur = '', row = [], inQuotes = false;
+      for (let i=0; i<text.length; i++){
+        const c = text[i], n = text[i+1];
+        if (c === '"' && inQuotes && n === '"'){ cur+='"'; i++; continue; }
+        if (c === '"'){ inQuotes = !inQuotes; continue; }
+        if (c === ',' && !inQuotes){ row.push(cur); cur=''; continue; }
+        if ((c === '\n' || c === '\r') && !inQuotes){
+          if (cur.length || row.length){ row.push(cur); rows.push(row); row=[]; cur=''; }
+          // Saltar \r\n
+          if (c === '\r' && n === '\n'){ i++; }
+          continue;
+        }
+        cur += c;
+      }
+      if (cur.length || row.length) row.push(cur), rows.push(row);
+      return rows;
+    }
+
+    /** Convierte filas CSV a objetos usando cabeceras */
+    function rowsToObjects(rows){
+      if (!rows.length) return [];
+      const headers = rows[0].map(h => h.trim());
+      return rows.slice(1).map(r => {
+        const o = {};
+        headers.forEach((h, i) => o[h] = (r[i] ?? '').trim());
+        return o;
+      });
+    }
+
+    /** Intenta normalizar fecha ISO a Date */
+    function parseDate(s){
+      if (!s) return null;
+      // Acepta '2025-09-11T12:34:56' o similares
+      const d = new Date(s);
+      return isNaN(d) ? null : d;
+    }
+
+    function fmtDate(d){
+      if (!d) return '—';
+      const pad = n => String(n).padStart(2,'0');
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    // --- Estado ---
+    let DATA = [];    // registros crudos
+    let VIEW = [];    // registros filtrados/ordenados
+
+    function render(){
+      grid.innerHTML = '';
+      let items = [...VIEW];
+      const limit = parseInt(limitSel.value || '0', 10);
+      if (limit > 0) items = items.slice(0, limit);
+
+      if (!items.length){
+        empty.hidden = false;
+        count.textContent = DATA.length ? `0 de ${DATA.length} coincidencias` : '';
+        return;
+      }
+      empty.hidden = true;
+
+      const frag = document.createDocumentFragment();
+      for (const art of items){
+        const card = document.createElement('article');
+        card.className = 'card'; card.setAttribute('role','listitem');
+
+        // Imagen
+        const thumb = document.createElement('div');
+        thumb.className = 'thumb';
+        // Muestra imagen_local si existe; si es ruta relativa y el archivo está junto al HTML, se verá
+        if (art.Imagen_local){
+          thumb.style.backgroundImage = `url('${art.Imagen_local.replace(/'/g,"\\'")}')`;
+        } else {
+          // intenta obtener de resumen si hubiera url, o deja placeholder
+          thumb.style.backgroundImage = '';
+        }
+        card.appendChild(thumb);
+
+        // Contenido
+        const content = document.createElement('div');
+        content.className = 'content';
+
+        const h3 = document.createElement('h3');
+        h3.className = 'title';
+        const a = document.createElement('a');
+        a.href = art.Link || '#';
+        a.target = '_blank'; a.rel = 'noopener noreferrer';
+        a.textContent = art.Título || '(Sin título)';
+        h3.appendChild(a);
+        content.appendChild(h3);
+
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        const d = parseDate(art.Fecha);
+        const chips = [
+          ['🗓', fmtDate(d)],
+          art.Autor ? ['✍️', art.Autor] : null,
+          art.Sección ? ['🏷', art.Sección] : null
+        ].filter(Boolean);
+
+        for (const [icon, text] of chips){
+          const span = document.createElement('span');
+          span.textContent = `${icon} ${text}`;
+          meta.appendChild(span);
+        }
+        content.appendChild(meta);
+
+        const desc = document.createElement('p');
+        desc.className = 'desc';
+        desc.textContent = art.Contenido_extendido || art.Resumen_RSS || '';
+        content.appendChild(desc);
+
+        card.appendChild(content);
+        frag.appendChild(card);
+      }
+      grid.appendChild(frag);
+
+      const shown = Math.min(limit || VIEW.length, VIEW.length);
+      count.textContent = `${shown} de ${VIEW.length} coincidencias` + (DATA.length ? ` (de ${DATA.length} totales)` : '');
+    }
+
+    function applyFilters(){
+      const term = (q.value || '').toLowerCase().trim();
+      VIEW = DATA.filter(r => {
+        if (!term) return true;
+        const hay = (r.Título||'') + ' ' + (r.Resumen_RSS||'') + ' ' + (r.Contenido_extendido||'') + ' ' + (r.Autor||'') + ' ' + (r.Sección||'');
+        return hay.toLowerCase().includes(term);
+      });
+
+      const mode = sortSel.value;
+      VIEW.sort((a,b)=>{
+        if (mode.startsWith('fecha')){
+          const da = parseDate(a.Fecha), db = parseDate(b.Fecha);
+          const va = da ? da.getTime() : -Infinity;
+          const vb = db ? db.getTime() : -Infinity;
+          return mode.endsWith('asc') ? va - vb : vb - va;
+        } else {
+          const ta = (a.Título||'').toLowerCase();
+          const tb = (b.Título||'').toLowerCase();
+          return mode.endsWith('asc') ? ta.localeCompare(tb) : tb.localeCompare(ta);
+        }
+      });
+
+      render();
+    }
+
+    function loadCSV(text){
+      const rows = parseCSV(text);
+      const objs = rowsToObjects(rows);
+
+      // Normaliza nombres esperados; intenta mapear variantes si el CSV tuviera mayúsculas distintas
+      const need = ["Título","Link","Fecha","Autor","Sección","Resumen_RSS","Contenido_extendido","Imagen_local"];
+      const map = {};
+      if (objs.length){
+        const keys = Object.keys(objs[0]);
+        for (const want of need){
+          const found = keys.find(k => k.toLowerCase() === want.toLowerCase());
+          map[want] = found || null;
+        }
+      }
+
+DATA = objs.map(o => ({
+  Título: map["Título"] ? o[map["Título"]] : o["Título"],
+  Link: map["Link"] ? o[map["Link"]] : o["Link"],
+  Fecha: map["Fecha"] ? o[map["Fecha"]] : o["Fecha"],
+  Autor: map["Autor"] ? o[map["Autor"]] : o["Autor"],
+  Sección: map["Sección"] ? o[map["Sección"]] : o["Sección"],
+  Resumen_RSS: map["Resumen_RSS"] ? o[map["Resumen_RSS"]] : o["Resumen_RSS"],
+  Contenido_extendido: map["Contenido_extendido"] ? o[map["Contenido_extendido"]] : o["Contenido_extendido"],
+  Imagen_local: map["Imagen_local"] ? o[map["Imagen_local"]] : o["Imagen_local"]
+}));
+
+      applyFilters();
+    }
+
+    // --- Eventos UI ---
+    q.addEventListener('input', applyFilters);  
+    sortSel.addEventListener('change', applyFilters);
+    limitSel.addEventListener('change', render);
+
+    fileInput.addEventListener('change', async (e)=>{
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const text = await file.text();
+      loadCSV(text);
+    });
+
+    // Drag & drop
+    ;['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => {e.preventDefault(); e.dataTransfer.dropEffect='copy'; drop.classList.add('drag');}));
+    ;['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => {e.preventDefault(); drop.classList.remove('drag');}));
+    drop.addEventListener('drop', async (e)=>{
+      const file = [...(e.dataTransfer.files||[])].find(f => f.name.toLowerCase().endsWith('.csv'));
+      if (!file) return;
+      const text = await file.text();
+      loadCSV(text);
+    });
+
+    // Estado inicial
+    empty.hidden = false;
+  </script>
+</body>
+</html>

@@ -1,0 +1,2568 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NewsFlow Pro - Plataforma de Inteligencia de Noticias</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      /* Colores principales - Tema corporativo moderno */
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #3b82f6;
+      --secondary: #64748b;
+      --accent: #06b6d4;
+      --accent-dark: #0891b2;
+      
+      /* Colores de estado */
+      --success: #10b981;
+      --success-light: #34d399;
+      --warning: #f59e0b;
+      --warning-light: #fbbf24;
+      --error: #ef4444;
+      --error-light: #f87171;
+      --info: #3b82f6;
+      --info-light: #60a5fa;
+      
+      /* Colores de fondo */
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8fafc;
+      --bg-tertiary: #f1f5f9;
+      --bg-card: #ffffff;
+      --bg-hover: #f8fafc;
+      
+      /* Colores de texto */
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --text-light: #94a3b8;
+      
+      /* Bordes y sombras */
+      --border: #e2e8f0;
+      --border-light: #f1f5f9;
+      --border-dark: #cbd5e1;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      
+      /* Gradientes */
+      --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --gradient-success: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+      
+      /* Espaciado */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2rem;
+      --space-2xl: 3rem;
+      --space-3xl: 4rem;
+      
+      /* Bordes redondeados */
+      --radius-sm: 0.375rem;
+      --radius: 0.5rem;
+      --radius-md: 0.75rem;
+      --radius-lg: 1rem;
+      --radius-xl: 1.5rem;
+      --radius-2xl: 2rem;
+      
+      /* Transiciones */
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slow: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+      overflow-x: hidden;
+      font-size: 16px;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    /* Header corporativo */
+    .header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+    
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: var(--space-lg) var(--space-xl);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+    
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--gradient-primary);
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    
+    .logo-text {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    .logo-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-lg);
+    }
+    
+    .theme-toggle {
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+      font-size: 1.125rem;
+    }
+    
+    .theme-toggle:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+    
+    /* Contenedor principal */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: var(--space-2xl) var(--space-xl);
+    }
+    
+    /* Hero section */
+    .hero {
+      text-align: center;
+      margin-bottom: var(--space-3xl);
+      padding: var(--space-3xl) 0;
+      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+      border-radius: var(--radius-2xl);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23e2e8f0" opacity="0.3"/><circle cx="75" cy="75" r="1" fill="%23e2e8f0" opacity="0.3"/><circle cx="50" cy="10" r="0.5" fill="%23e2e8f0" opacity="0.2"/><circle cx="10" cy="60" r="0.5" fill="%23e2e8f0" opacity="0.2"/><circle cx="90" cy="40" r="0.5" fill="%23e2e8f0" opacity="0.2"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+      opacity: 0.5;
+    }
+    
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: var(--space-lg);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+    
+    .hero-gradient {
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .hero-subtitle {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-2xl);
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+    
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-2xl);
+      margin-top: var(--space-2xl);
+    }
+    
+    .hero-stat {
+      text-align: center;
+    }
+    
+    .hero-stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: block;
+    }
+    
+    .hero-stat-label {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    
+    /* Tarjetas modernas */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      overflow: hidden;
+    }
+    
+    .card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+    
+    .card-header {
+      padding: var(--space-xl);
+      border-bottom: 1px solid var(--border-light);
+      background: var(--bg-secondary);
+    }
+    
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+    
+    .card-icon {
+      width: 24px;
+      height: 24px;
+      color: var(--primary);
+    }
+    
+    .card-content {
+      padding: var(--space-xl);
+    }
+    
+    /* Formularios modernos */
+    .form-group {
+      margin-bottom: var(--space-lg);
+    }
+    
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-sm);
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: var(--space-md) var(--space-lg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 1rem;
+      transition: var(--transition);
+      font-family: inherit;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    
+    .form-input::placeholder {
+      color: var(--text-light);
+    }
+    
+    .form-select {
+      width: 100%;
+      padding: var(--space-md) var(--space-lg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 1rem;
+      transition: var(--transition);
+      font-family: inherit;
+      cursor: pointer;
+    }
+    
+    .form-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    
+    /* Botones modernos */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      padding: var(--space-md) var(--space-lg);
+      border: none;
+      border-radius: var(--radius-lg);
+      font-size: 0.875rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .btn:hover::before {
+      left: 100%;
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--bg-hover);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+    
+    .btn-success:hover {
+      background: var(--success-light);
+      transform: translateY(-1px);
+    }
+    
+    .btn-danger {
+      background: var(--error);
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background: var(--error-light);
+      transform: translateY(-1px);
+    }
+    
+    .btn-sm {
+      padding: var(--space-sm) var(--space-md);
+      font-size: 0.75rem;
+    }
+    
+    .btn-lg {
+      padding: var(--space-lg) var(--space-xl);
+      font-size: 1rem;
+    }
+    
+    /* Estadísticas del dashboard */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: var(--space-lg);
+      margin-bottom: var(--space-2xl);
+    }
+    
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-xl);
+      text-align: center;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--gradient-primary);
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: var(--space-sm);
+      display: block;
+    }
+    
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    /* Gráficos */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--space-lg);
+      margin-bottom: var(--space-2xl);
+    }
+    
+    .chart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-xl);
+      transition: var(--transition);
+    }
+    
+    .chart-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+    
+    .chart-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-lg);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    
+    .chart-content {
+      space-y: var(--space-md);
+    }
+    
+    .chart-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+    
+    .chart-label {
+      flex: 1;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    
+    .chart-value {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      min-width: 40px;
+      text-align: right;
+    }
+    
+    .chart-bar {
+      flex: 1;
+      height: 8px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      margin: 0 var(--space-md);
+    }
+    
+    .chart-fill {
+      height: 100%;
+      background: var(--gradient-primary);
+      border-radius: var(--radius-sm);
+      transition: width 0.8s ease;
+    }
+    
+    /* Tabla moderna */
+    .table-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      margin-top: var(--space-2xl);
+    }
+    
+    .table-header {
+      padding: var(--space-xl);
+      border-bottom: 1px solid var(--border-light);
+      background: var(--bg-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+    }
+    
+    .table-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    
+    .table-controls {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+    }
+    
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    
+    .table th {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      font-weight: 600;
+      padding: var(--space-md) var(--space-lg);
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .table td {
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text-primary);
+      vertical-align: top;
+    }
+    
+    .table tbody tr:hover {
+      background: var(--bg-hover);
+    }
+    
+    .table tbody tr:last-child td {
+      border-bottom: none;
+    }
+    
+    /* Acciones masivas */
+    .bulk-actions {
+      display: none;
+      padding: var(--space-md) var(--space-xl);
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-light);
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+    }
+    
+    .bulk-actions.show {
+      display: flex;
+    }
+    
+    .bulk-info {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    
+    .bulk-buttons {
+      display: flex;
+      gap: var(--space-sm);
+    }
+    
+    .bulk-btn {
+      padding: var(--space-sm) var(--space-md);
+      border: none;
+      border-radius: var(--radius);
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+    
+    .bulk-btn.danger {
+      background: var(--error);
+      color: white;
+    }
+    
+    .bulk-btn.danger:hover {
+      background: var(--error-light);
+    }
+    
+    .bulk-btn.success {
+      background: var(--success);
+      color: white;
+    }
+    
+    .bulk-btn.success:hover {
+      background: var(--success-light);
+    }
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: var(--space-lg) var(--space-md);
+      }
+      
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+      
+      .hero-stats {
+        flex-direction: column;
+        gap: var(--space-lg);
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+      
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .table-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .header-content {
+        flex-direction: column;
+        gap: var(--space-md);
+      }
+      
+      .header-actions {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+    
+    /* Toast notifications */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: var(--space-md) var(--space-lg);
+      border-radius: var(--radius-lg);
+      color: white;
+      font-weight: 500;
+      z-index: 1000;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+    }
+    
+    .toast.show {
+      transform: translateX(0);
+    }
+    
+    .toast.success {
+      background: var(--success);
+    }
+    
+    .toast.error {
+      background: var(--error);
+    }
+    
+    .toast.info {
+      background: var(--info);
+    }
+    
+    /* Scroll to top button */
+    .scroll-to-top {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      box-shadow: var(--shadow-lg);
+      transition: var(--transition);
+      z-index: 100;
+    }
+    
+    .scroll-to-top:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+    
+    .scroll-to-top.show {
+      display: flex;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header corporativo -->
+  <header class="header">
+    <div class="header-content">
+      <a href="/" class="logo">
+        <div class="logo-icon">NF</div>
+        <div>
+          <div class="logo-text">NewsFlow Pro</div>
+          <div class="logo-subtitle">Inteligencia de Noticias</div>
+        </div>
+      </a>
+      
+      <div class="header-actions">
+        <a href="/search" class="btn btn-secondary">
+          <i class="fas fa-search"></i>
+          Búsqueda Avanzada
+        </a>
+        <a href="/api/articles" class="btn btn-secondary" target="_blank">
+          <i class="fas fa-code"></i>
+          API
+        </a>
+        <a href="/admin/db" class="btn btn-secondary" target="_blank">
+          <i class="fas fa-database"></i>
+          Base de Datos
+        </a>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenido principal -->
+  <div class="container">
+    <!-- Hero section -->
+    <section class="hero">
+      <div class="hero-content">
+        <h1>
+          <span class="hero-gradient">NewsFlow Pro</span><br>
+          Inteligencia de Noticias
+        </h1>
+        <p class="hero-subtitle">
+          Plataforma avanzada de agregación y análisis de noticias con inteligencia artificial. 
+          Monitorea múltiples fuentes, analiza tendencias y obtén insights valiosos.
+        </p>
+        
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="hero-stat-number">{{ stats.total_articles }}</span>
+            <span class="hero-stat-label">Artículos</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-number">{{ stats.total_links }}</span>
+            <span class="hero-stat-label">Enlaces</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-number">{{ stats.articles_today }}</span>
+            <span class="hero-stat-label">Hoy</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-number">{{ stats.articles_this_week }}</span>
+            <span class="hero-stat-label">Esta Semana</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Estadísticas principales -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number">{{ stats.total_articles }}</div>
+        <div class="stat-label">Total Artículos</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-number">{{ stats.total_links }}</div>
+        <div class="stat-label">Enlaces Guardados</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-number">{{ stats.articles_today }}</div>
+        <div class="stat-label">Artículos Hoy</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-number">{{ stats.articles_this_week }}</div>
+        <div class="stat-label">Esta Semana</div>
+      </div>
+    </div>
+
+    <!-- Gráficos de análisis -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">
+          <i class="fas fa-newspaper"></i>
+          Artículos por Fuente
+        </div>
+        <div class="chart-content">
+          {% for source, count in stats.articles_by_source %}
+          <div class="chart-item">
+            <span class="chart-label">{{ rss_sources[source].name if source in rss_sources else source }}</span>
+            <span class="chart-value">{{ count }}</span>
+            <div class="chart-bar">
+              <div class="chart-fill" style="width: {{ (count / stats.total_articles * 100) if stats.total_articles > 0 else 0 }}%"></div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title">
+          <i class="fas fa-user-edit"></i>
+          Top Autores
+        </div>
+        <div class="chart-content">
+          {% for author, count in stats.top_authors %}
+          <div class="chart-item">
+            <span class="chart-label">{{ author|short(20) }}</span>
+            <span class="chart-value">{{ count }}</span>
+            <div class="chart-bar">
+              <div class="chart-fill" style="width: {{ (count / stats.top_authors[0][1] * 100) if stats.top_authors else 0 }}%"></div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Secciones principales -->
+    <div class="main-grid">
+      <!-- Sección de entrada -->
+      <div class="section-card">
+        <div class="section-header">
+          <h3 class="section-title">
+            <i class="fas fa-plus-circle section-icon"></i>
+            Agregar Nuevo Enlace
+          </h3>
+        </div>
+        <div class="section-content">
+          <form action="/add-link" method="post">
+            <div class="form-group">
+              <label for="url" class="form-label">URL del artículo</label>
+              <input id="url" name="url" type="url" class="form-input" placeholder="https://www.bbc.com/mundo/..." required>
+            </div>
+            <div class="form-group">
+              <label for="modo" class="form-label">Modo de procesamiento</label>
+              <select id="modo" name="modo" class="form-select">
+                <option value="simple">Simple (solo link)</option>
+                <option value="enriquecido">Enriquecido (extrae datos)</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save"></i>
+              Guardar Enlace
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Sección de actualización -->
+      <div class="section-card">
+        <div class="section-header">
+          <h3 class="section-title">
+            <i class="fas fa-sync-alt section-icon"></i>
+            Actualizar Noticias
+          </h3>
+        </div>
+        <div class="section-content">
+          <form action="/refresh" method="post">
+            <div class="form-group">
+              <label for="source" class="form-label">Fuente RSS</label>
+              <select id="source" name="source" class="form-select" required>
+                {% for key, source in rss_sources.items() %}
+                <option value="{{ key }}">{{ source.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="limit" class="form-label">Límite de artículos</label>
+              <select id="limit" name="limit" class="form-select">
+                <option value="5">5 artículos</option>
+                <option value="10" selected>10 artículos</option>
+                <option value="15">15 artículos</option>
+                <option value="20">20 artículos</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-sync-alt"></i>
+              Actualizar Noticias
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de descarga -->
+    <div class="section-card">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="fas fa-download section-icon"></i>
+          Descargar Datos
+        </h3>
+      </div>
+      <div class="section-content">
+        <div class="form-group">
+          <label class="form-label">Descarga completa</label>
+          <div style="display: flex; gap: var(--space-md); flex-wrap: wrap;">
+            <a href="/download/csv" class="btn btn-success">
+              <i class="fas fa-file-csv"></i>
+              CSV Completo
+            </a>
+            <a href="/download/json" class="btn btn-success">
+              <i class="fas fa-file-code"></i>
+              JSON Completo
+            </a>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Datos históricos</label>
+          <div style="display: flex; gap: var(--space-md); align-items: center; flex-wrap: wrap;">
+            <select id="historical-days" class="form-select" style="min-width: 150px;">
+              <option value="1">Último día</option>
+              <option value="3">Últimos 3 días</option>
+              <option value="7" selected>Última semana</option>
+              <option value="14">Últimas 2 semanas</option>
+              <option value="30">Último mes</option>
+            </select>
+            
+            <select id="historical-source" class="form-select" style="min-width: 200px;">
+              <option value="">Todas las fuentes</option>
+              {% for key, source in rss_sources.items() %}
+              <option value="{{ key }}">{{ source.name }}</option>
+              {% endfor %}
+            </select>
+            
+            <button onclick="downloadHistorical('csv')" class="btn btn-secondary">
+              <i class="fas fa-file-csv"></i>
+              CSV Histórico
+            </button>
+            <button onclick="downloadHistorical('json')" class="btn btn-secondary">
+              <i class="fas fa-file-code"></i>
+              JSON Histórico
+            </button>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Por fecha específica</label>
+          <div style="display: flex; gap: var(--space-md); align-items: center; flex-wrap: wrap;">
+            <input type="date" id="specific-date" class="form-input" style="min-width: 150px;">
+            <button onclick="downloadByDate('csv')" class="btn btn-secondary">
+              <i class="fas fa-file-csv"></i>
+              CSV
+            </button>
+            <button onclick="downloadByDate('json')" class="btn btn-secondary">
+              <i class="fas fa-file-code"></i>
+              JSON
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de artículos -->
+    <div class="table-container">
+      <div class="table-header">
+        <h3 class="table-title">
+          <i class="fas fa-newspaper"></i>
+          Artículos Enriquecidos
+        </h3>
+        <div class="table-controls">
+          <input type="text" id="q" placeholder="Buscar artículos..." style="flex: 1; min-width: 200px;">
+          <select id="sort">
+            <option value="-date">Más recientes</option>
+            <option value="title">Por título</option>
+            <option value="author">Por autor</option>
+            <option value="source">Por fuente</option>
+          </select>
+          <button id="clear" class="btn btn-secondary">Limpiar</button>
+          <button id="refreshNow" class="btn btn-primary">
+            <i class="fas fa-sync-alt"></i>
+            Actualizar Ahora
+          </button>
+          <label style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="autoref">
+            <span style="font-size: 0.875rem;">Auto-refresh (5min)</span>
+          </label>
+          <a href="/search" class="btn btn-secondary">
+            <i class="fas fa-search"></i>
+            Búsqueda Avanzada
+          </a>
+        </div>
+      </div>
+      
+      <!-- Acciones masivas -->
+      <div class="bulk-actions" id="bulkActions">
+        <span class="bulk-info" id="bulkInfo">0 artículos seleccionados</span>
+        <div class="bulk-buttons">
+          <button class="bulk-btn danger" onclick="bulkAction('delete')">
+            <i class="fas fa-trash"></i>
+            Eliminar
+          </button>
+          <button class="bulk-btn success" onclick="bulkAction('mark_favorite')">
+            <i class="fas fa-star"></i>
+            Marcar Favoritos
+          </button>
+          <button class="bulk-btn success" onclick="bulkAction('unmark_favorite')">
+            <i class="fas fa-star-o"></i>
+            Quitar Favoritos
+          </button>
+        </div>
+      </div>
+      
+      <table class="table">
+        <thead>
+          <tr>
+            <th style="width:32px"><input type="checkbox" id="select-all" onchange="toggleAllSelection()"></th>
+            <th style="width:48px">#</th>
+            <th>Título</th>
+            <th>Link</th>
+            <th>Fecha</th>
+            <th>Autor</th>
+            <th>Sección</th>
+            <th>Fuente</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in recent_articles %}
+          <tr>
+            <td><input type="checkbox" class="article-checkbox" value="{{ a.id }}" onchange="updateBulkActions()"></td>
+            <td>{{ a.id }}</td>
+            <td>
+              <strong>{{ a.title|short(60) }}</strong>
+              {% if a.summary %}
+              <br><small style="color:var(--text-muted)">{{ a.summary|short(80) }}</small>
+              {% endif %}
+            </td>
+            <td><a href="{{ a.url }}" target="_blank" rel="noopener" style="color:var(--primary)">🔗 Ver</a></td>
+            <td>
+              {% if a.date_iso %}
+              <span style="font-size:0.8rem">{{ a.date_iso[:10] }}</span>
+              {% else %}
+              <span style="color:var(--text-muted)">—</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if a.author %}
+              <span style="font-size:0.8rem">{{ a.author|short(15) }}</span>
+              {% else %}
+              <span style="color:var(--text-muted)">—</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if a.section %}
+              <span style="font-size:0.8rem; background:var(--bg-tertiary); padding:2px 6px; border-radius:4px">{{ a.section|short(12) }}</span>
+              {% else %}
+              <span style="color:var(--text-muted)">—</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if a.source %}
+              <span style="font-size:0.8rem; color:var(--primary)">{{ rss_sources[a.source].name if a.source in rss_sources else a.source }}</span>
+              {% else %}
+              <span style="color:var(--text-muted)">Manual</span>
+              {% endif %}
+            </td>
+            <td>
+              <button onclick="toggleFavorite({{ a.id }})" class="btn btn-sm" style="padding:4px 8px; font-size:0.7rem; background:transparent; border:1px solid var(--border)">
+                {% if safe_getattr(a, 'is_favorite', False) %}⭐{% else %}☆{% endif %}
+              </button>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="9" style="text-align:center; padding:40px; color:var(--text-muted)">
+              <i class="fas fa-newspaper" style="font-size:2rem; margin-bottom:16px; display:block"></i>
+              No hay artículos enriquecidos aún.<br>
+              <small>Usa el formulario de arriba para agregar enlaces o actualizar noticias.</small>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Toast notifications -->
+  <div id="toast" class="toast" hidden></div>
+  
+  <!-- Scroll to top button -->
+  <button class="scroll-to-top" onclick="scrollToTop()">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+  <script>
+    // Theme toggle
+    function toggleTheme() {
+      const body = document.body;
+      const themeIcon = document.getElementById('theme-icon');
+      
+      if (body.classList.contains('dark-theme')) {
+        body.classList.remove('dark-theme');
+        themeIcon.textContent = '🌙';
+        localStorage.setItem('theme', 'light');
+      } else {
+        body.classList.add('dark-theme');
+        themeIcon.textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
+      }
+    }
+    
+    // Load saved theme
+    document.addEventListener('DOMContentLoaded', function() {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+        document.getElementById('theme-icon').textContent = '☀️';
+      }
+    });
+    
+    // Bulk actions
+    function updateBulkActions() {
+      const checkboxes = document.querySelectorAll('.article-checkbox:checked');
+      const bulkActions = document.getElementById('bulkActions');
+      const bulkInfo = document.getElementById('bulkInfo');
+      
+      if (checkboxes.length > 0) {
+        bulkActions.classList.add('show');
+        bulkInfo.textContent = `${checkboxes.length} artículos seleccionados`;
+      } else {
+        bulkActions.classList.remove('show');
+      }
+    }
+    
+    function toggleAllSelection() {
+      const selectAll = document.getElementById('select-all');
+      const checkboxes = document.querySelectorAll('.article-checkbox');
+      
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+      });
+      
+      updateBulkActions();
+    }
+    
+    function clearSelection() {
+      const checkboxes = document.querySelectorAll('.article-checkbox');
+      const selectAll = document.getElementById('select-all');
+      
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+      });
+      selectAll.indeterminate = false;
+      
+      updateBulkActions();
+    }
+    
+    // Toast notifications
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${type}`;
+      toast.hidden = false;
+      
+      setTimeout(() => {
+        toast.hidden = true;
+      }, 3000);
+    }
+    
+    // Descarga histórica
+    function downloadHistorical(format) {
+      const days = document.getElementById('historical-days').value;
+      const source = document.getElementById('historical-source').value;
+      
+      let url = `/download/historical?days=${days}&format=${format}`;
+      if (source) {
+        url += `&source=${source}`;
+      }
+      
+      // Mostrar mensaje
+      const daysText = days === '1' ? 'día' : 'días';
+      const sourceText = source ? ` de ${document.getElementById('historical-source').selectedOptions[0].text}` : '';
+      showToast(`Descargando artículos de los últimos ${days} ${daysText}${sourceText}...`, 'info');
+      
+      // Descargar
+      window.open(url, '_blank');
+    }
+    
+    // Descarga por fecha específica
+    function downloadByDate(format) {
+      const date = document.getElementById('specific-date').value;
+      
+      if (!date) {
+        showToast('Por favor selecciona una fecha', 'error');
+        return;
+      }
+      
+      const url = `/download/by-date?date=${date}&format=${format}`;
+      
+      // Mostrar mensaje
+      const dateObj = new Date(date);
+      const formattedDate = dateObj.toLocaleDateString('es-ES');
+      showToast(`Descargando artículos del ${formattedDate}...`, 'info');
+      
+      // Descargar
+      window.open(url, '_blank');
+    }
+    
+    // Toggle favorite
+    function toggleFavorite(articleId) {
+      fetch(`/toggle-favorite/${articleId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        }
+      })
+      .then(response => response.text())
+      .then(() => {
+        location.reload();
+      })
+      .catch(error => {
+        showToast('Error actualizando favorito', 'error');
+      });
+    }
+    
+    // Bulk actions
+    function bulkAction(action) {
+      const checkboxes = document.querySelectorAll('.article-checkbox:checked');
+      const articleIds = Array.from(checkboxes).map(cb => cb.value);
+      
+      if (articleIds.length === 0) {
+        showToast('No se seleccionaron artículos', 'error');
+        return;
+      }
+      
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '/bulk-action';
+      
+      const actionInput = document.createElement('input');
+      actionInput.type = 'hidden';
+      actionInput.name = 'action';
+      actionInput.value = action;
+      form.appendChild(actionInput);
+      
+      articleIds.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'article_ids';
+        input.value = id;
+        form.appendChild(input);
+      });
+      
+      document.body.appendChild(form);
+      form.submit();
+    }
+    
+    // Scroll to top
+    function scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+    
+    // Show/hide scroll to top button
+    window.addEventListener('scroll', function() {
+      const scrollButton = document.querySelector('.scroll-to-top');
+      if (window.pageYOffset > 300) {
+        scrollButton.classList.add('show');
+      } else {
+        scrollButton.classList.remove('show');
+      }
+    });
+    
+    // Filtros básicos en cliente
+    (function(){
+      const q = document.getElementById('q');
+      const sort = document.getElementById('sort');
+      const clear = document.getElementById('clear');
+      
+      function filterTable() {
+        const query = q.value.toLowerCase();
+        const rows = document.querySelectorAll('tbody tr');
+        
+        rows.forEach(row => {
+          const text = row.textContent.toLowerCase();
+          row.style.display = text.includes(query) ? '' : 'none';
+        });
+      }
+      
+      q.addEventListener('input', filterTable);
+      clear.addEventListener('click', () => {
+        q.value = '';
+        filterTable();
+      });
+    })();
+  </script>
+</body>
+</html>
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+    
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--acc);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .lists {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 32px;
+      margin-top: 40px;
+    }
+    
+    .panel {
+      background: var(--card);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: var(--shadow);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      z-index: 0;
+    }
+    
+    .panel:hover::before {
+      opacity: 1;
+    }
+    
+    .panel:hover {
+      transform: translateY(-4px) scale(1.01);
+      border-color: rgba(59, 130, 246, 0.3);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .panel > * {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .panel h3 {
+      margin: 0 0 24px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 16px;
+      position: relative;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .panel h3::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(135deg, var(--acc), #8b5cf6);
+      border-radius: 1px;
+    }
+    
+    .muted {
+      color: var(--muted);
+    }
+    
+    .msg {
+      margin: 16px 0;
+      padding: 20px 24px;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      border: 1px solid;
+      font-weight: 500;
+      box-shadow: var(--shadow);
+    }
+    
+    .ok {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: var(--success);
+    }
+    
+    .error {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: var(--error);
+    }
+    
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    
+    ul li {
+      padding: 20px 24px;
+      margin: 16px 0;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    ul li::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+      transition: left 0.6s ease;
+    }
+    
+    ul li:hover::before {
+      left: 100%;
+    }
+    
+    ul li:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateX(8px) scale(1.02);
+      border-color: rgba(59, 130, 246, 0.2);
+    }
+    
+    code {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+    }
+    button.del {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-left: 8px;
+      color: #ff7676;
+    }
+    button.del:hover {
+      color: #ff3b3b;
+    }
+    .table-wrap{
+      overflow:auto;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:rgba(255, 255, 255, 0.02);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    .tbl{
+      width:100%; 
+      border-collapse:collapse; 
+      font-size:0.88rem; 
+      min-width:1200px;
+      background:transparent;
+    }
+    .tbl th,.tbl td{
+      border-bottom:1px solid rgba(255, 255, 255, 0.1); 
+      padding:12px 8px; 
+      vertical-align:top;
+      position:relative;
+    }
+    .tbl thead th{
+      position:sticky; 
+      top:0; 
+      background:linear-gradient(135deg, #0f1520, #1a2332); 
+      z-index:1; 
+      text-align:left; 
+      font-weight:700;
+      color:#6ea8fe;
+      text-transform:uppercase;
+      font-size:0.8rem;
+      letter-spacing:0.5px;
+      border-bottom:2px solid var(--acc);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    .tbl tbody tr{
+      transition:all 0.3s ease;
+      position:relative;
+    }
+    .tbl tbody tr::before{
+      content:'';
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      bottom:0;
+      background:linear-gradient(90deg, transparent, rgba(110, 168, 254, 0.05), transparent);
+      opacity:0;
+      transition:opacity 0.3s ease;
+    }
+    .tbl tbody tr:hover::before{
+      opacity:1;
+    }
+    .tbl tbody tr:hover{
+      background:rgba(110, 168, 254, 0.08);
+      transform:scale(1.01);
+      box-shadow: 0 4px 20px rgba(110, 168, 254, 0.15);
+    }
+    .tbl td:nth-child(1){width:48px; text-align:center; font-weight:600; color:var(--acc)}
+    .tbl td:nth-child(2){width:200px}
+    .tbl td:nth-child(3){width:180px}
+    .tbl td:nth-child(4){width:80px; text-align:center}
+    .tbl td:nth-child(5){width:120px}
+    .tbl td:nth-child(6){width:100px}
+    .tbl td:nth-child(7){width:120px}
+    .tbl td:nth-child(8){width:200px}
+    .tbl td:nth-child(9){width:250px}
+    .tbl td:nth-child(10){width:80px; text-align:center}
+    .tbl td:nth-child(11){width:56px; text-align:center}
+    button {
+      background: linear-gradient(135deg, var(--acc), #1d4ed8);
+      cursor: pointer;
+      font-weight: 600;
+      border: none;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    }
+    
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    button:hover::before {
+      left: 100%;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      background: linear-gradient(135deg, #1d4ed8, var(--acc));
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+    
+    button.del {
+      border: none;
+      background: rgba(239, 68, 68, 0.1);
+      cursor: pointer;
+      font-size: 1rem;
+      color: var(--error);
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
+    }
+    
+    button.del:hover {
+      color: #fff;
+      background: var(--error);
+      border-color: var(--error);
+      transform: scale(1.1);
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+    }
+    
+    .btn-refresh {
+      background: linear-gradient(135deg, #1e40af, #3b82f6);
+      box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);
+    }
+    
+    .btn-refresh:hover {
+      background: linear-gradient(135deg, #3b82f6, #1e40af);
+      box-shadow: 0 6px 20px rgba(30, 64, 175, 0.4);
+    }
+    
+    .btn-download {
+      text-decoration: none;
+      font-size: 0.95rem;
+      background: linear-gradient(135deg, #059669, #10b981);
+      box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
+    }
+    
+    .btn-download:hover {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      text-decoration: none;
+      box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
+    }
+    
+    .btn-expand {
+      background: linear-gradient(135deg, #6b7280, #9ca3af);
+      color: var(--text);
+      font-size: 0.95rem;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
+    }
+    
+    .btn-expand:hover {
+      background: linear-gradient(135deg, #9ca3af, #6b7280);
+      box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
+    }
+    .table-container {
+      max-height: 400px;
+      overflow-y: auto;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 12px;
+      position: relative;
+    }
+    .table-container.collapsed {
+      max-height: 200px;
+    }
+    .table-container::-webkit-scrollbar {
+      width: 8px;
+    }
+    .table-container::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+    }
+    .table-container::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, var(--acc), #4c8bf5);
+      border-radius: 4px;
+    }
+    .table-container::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, #4c8bf5, var(--acc));
+    }
+    .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:26px;background:#182a40;color:#fff;padding:10px 14px;border-radius:10px;border:1px solid #2a3a4f}
+    
+    /* Dashboard Styles */
+    .dashboard {
+      margin-bottom: 40px;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-card {
+      background: var(--card);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow);
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(59, 130, 246, 0.3);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .stat-icon {
+      font-size: 2.5rem;
+      opacity: 0.8;
+    }
+    
+    .stat-content {
+      flex: 1;
+    }
+    
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--acc);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    
+    .chart-card {
+      background: var(--card);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      transition: all 0.3s ease;
+    }
+    
+    .chart-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(59, 130, 246, 0.2);
+    }
+    
+    .chart-card h4 {
+      margin: 0 0 20px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 12px;
+    }
+    
+    .chart-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .chart-label {
+      min-width: 80px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    
+    .chart-bar {
+      flex: 1;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .chart-fill {
+      height: 100%;
+      background: linear-gradient(135deg, var(--acc), #1d4ed8);
+      border-radius: 4px;
+      transition: width 0.6s ease;
+    }
+    
+    .chart-value {
+      min-width: 30px;
+      text-align: right;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--acc);
+    }
+    
+    /* Theme Toggle */
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(20px);
+    }
+    
+    .theme-toggle:hover {
+      transform: scale(1.1);
+      border-color: var(--acc);
+    }
+    
+    /* Bulk Actions */
+    .bulk-actions {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      backdrop-filter: blur(20px);
+    }
+    
+    .bulk-actions.show {
+      display: flex;
+    }
+    
+    .bulk-actions .selected-count {
+      color: var(--acc);
+      font-weight: 600;
+    }
+    
+    .bulk-actions button {
+      padding: 8px 16px;
+      font-size: 0.9rem;
+    }
+    
+    .bulk-actions .btn-danger {
+      background: var(--error);
+      color: white;
+    }
+    
+    .bulk-actions .btn-danger:hover {
+      background: #dc2626;
+    }
+    
+    .bulk-actions .btn-success {
+      background: var(--success);
+      color: white;
+    }
+    
+    .bulk-actions .btn-success:hover {
+      background: #059669;
+    }
+    
+    /* Checkbox for bulk selection */
+    .bulk-checkbox {
+      margin-right: 8px;
+    }
+    
+    /* Favorite button */
+    .btn-favorite {
+      background: var(--success);
+      color: white;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-favorite:hover {
+      background: #059669;
+      transform: scale(1.05);
+    }
+    
+    .btn-favorite.favorited {
+      background: #f59e0b;
+    }
+    
+    .btn-favorite.favorited:hover {
+      background: #d97706;
+    }
+    
+    /* Search Advanced Link */
+    .search-advanced {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--acc);
+      text-decoration: none;
+      font-weight: 500;
+      margin-left: 16px;
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    
+    .search-advanced:hover {
+      background: var(--card);
+      border-color: var(--acc);
+      text-decoration: none;
+    }
+    
+    /* Light Theme */
+    body.light-theme {
+      --bg: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+      --card: rgba(255, 255, 255, 0.8);
+      --card-hover: rgba(255, 255, 255, 0.9);
+      --muted: #64748b;
+      --text: #1e293b;
+      --border: rgba(0, 0, 0, 0.1);
+      --acc: #3b82f6;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+    }
+    
+    body.light-theme::before {
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(236, 72, 153, 0.03) 0%, transparent 50%);
+    }
+    
+    body.light-theme .theme-toggle {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    body.light-theme .stat-card,
+    body.light-theme .chart-card,
+    body.light-theme .panel,
+    body.light-theme .input-section {
+      background: rgba(255, 255, 255, 0.8);
+      border-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    body.light-theme .tbl thead th {
+      background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+      color: #475569;
+    }
+    
+    body.light-theme .tbl tbody tr:hover {
+      background: rgba(59, 130, 246, 0.05);
+    }
+  </style>
+</head>
+<body>
+  <!-- Theme Toggle -->
+  <div class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
+    <span id="theme-icon">🌙</span>
+  </div>
+
+  <div class="wrap">
+    <h1>🚀 News Aggregator Pro</h1>
+    <p class="subtitle">Dashboard avanzado de noticias con análisis en tiempo real, favoritos, búsqueda inteligente y más.</p>
+
+    <!-- Dashboard de Estadísticas -->
+    <div class="dashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">📊</div>
+          <div class="stat-content">
+            <div class="stat-number">{{ stats.total_articles }}</div>
+            <div class="stat-label">Total Artículos</div>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">🔗</div>
+          <div class="stat-content">
+            <div class="stat-number">{{ stats.total_links }}</div>
+            <div class="stat-label">Links Guardados</div>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">📅</div>
+          <div class="stat-content">
+            <div class="stat-number">{{ stats.articles_today }}</div>
+            <div class="stat-label">Hoy</div>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">📈</div>
+          <div class="stat-content">
+            <div class="stat-number">{{ stats.articles_this_week }}</div>
+            <div class="stat-label">Esta Semana</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h4>📰 Por Fuente</h4>
+          <div class="chart-content">
+            {% for source, count in stats.articles_by_source %}
+            <div class="chart-item">
+              <span class="chart-label">{{ rss_sources[source].name if source in rss_sources else source }}</span>
+              <div class="chart-bar">
+                <div class="chart-fill" style="width: {{ (count / stats.total_articles * 100) if stats.total_articles > 0 else 0 }}%"></div>
+              </div>
+              <span class="chart-value">{{ count }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <h4>✍️ Top Autores</h4>
+          <div class="chart-content">
+            {% for author, count in stats.top_authors %}
+            <div class="chart-item">
+              <span class="chart-label">{{ author|short(20) }}</span>
+              <div class="chart-bar">
+                <div class="chart-fill" style="width: {{ (count / stats.top_authors[0][1] * 100) if stats.top_authors else 0 }}%"></div>
+              </div>
+              <span class="chart-value">{{ count }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <h4>📂 Top Secciones</h4>
+          <div class="chart-content">
+            {% for section, count in stats.top_sections %}
+            <div class="chart-item">
+              <span class="chart-label">{{ section|short(20) }}</span>
+              <div class="chart-bar">
+                <div class="chart-fill" style="width: {{ (count / stats.top_sections[0][1] * 100) if stats.top_sections else 0 }}%"></div>
+              </div>
+              <span class="chart-value">{{ count }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% with msgs = get_flashed_messages(with_categories=True) %}
+      {% if msgs %}
+        {% for cat, m in msgs %}
+          <div class="msg {{cat}}">{{ m }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="input-section">
+      <form action="/add-link" method="post" class="form-group">
+      <input name="url" type="url" required placeholder="https://www.bbc.com/mundo/..." />
+      <select name="modo">
+        <option value="simple">Simple (solo link)</option>
+        <option value="enriquecido">Enriquecido (extrae datos)</option>
+      </select>
+        <button type="submit">💾 Guardar</button>
+    </form>
+
+      <div class="form-controls">
+        <form action="/refresh" method="post" style="display:flex; gap:12px; align-items:center; flex-wrap:wrap">
+          <select name="source" style="min-width:200px">
+            {% for key, source in rss_sources.items() %}
+            <option value="{{ key }}">{{ source.name }}</option>
+            {% endfor %}
+          </select>
+          
+          <select name="limit" style="width:140px">
+            <option value="5">5 artículos</option>
+            <option value="10" selected>10 artículos</option>
+            <option value="15">15 artículos</option>
+            <option value="20">20 artículos</option>
+          </select>
+          
+          <button type="submit" class="btn-refresh">🔄 Actualizar noticias</button>
+        </form>
+      </div>
+
+      <div class="download-section">
+        <span style="color:var(--muted); font-size:1rem; font-weight:500">📥 Descargar datos:</span>
+        <a href="/download/csv" class="btn-download" title="Descargar todos los artículos en formato CSV">
+          📊 CSV Completo
+        </a>
+        <a href="/download/json" class="btn-download" title="Descargar todos los artículos en formato JSON">
+          📋 JSON Completo
+        </a>
+        
+        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
+          <span style="color:var(--muted); font-size:0.9rem; font-weight:500">📅 Datos históricos:</span>
+          
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px;">
+            <select id="historical-days" style="padding: 8px 12px; font-size: 0.9rem;">
+              <option value="1">Último día</option>
+              <option value="3">Últimos 3 días</option>
+              <option value="7" selected>Última semana</option>
+              <option value="14">Últimas 2 semanas</option>
+              <option value="30">Último mes</option>
+            </select>
+            
+            <select id="historical-source" style="padding: 8px 12px; font-size: 0.9rem;">
+              <option value="">Todas las fuentes</option>
+              {% for key, source in rss_sources.items() %}
+              <option value="{{ key }}">{{ source.name }}</option>
+              {% endfor %}
+            </select>
+            
+            <button onclick="downloadHistorical('csv')" class="btn-download" style="font-size: 0.9rem; padding: 8px 12px;">
+              📊 CSV Histórico
+            </button>
+            <button onclick="downloadHistorical('json')" class="btn-download" style="font-size: 0.9rem; padding: 8px 12px;">
+              📋 JSON Histórico
+            </button>
+          </div>
+          
+          <div style="margin-top: 8px;">
+            <span style="color:var(--muted); font-size:0.85rem;">📆 Por fecha específica:</span>
+            <input type="date" id="specific-date" style="margin-left: 8px; padding: 6px 8px; font-size: 0.85rem;">
+            <button onclick="downloadByDate('csv')" class="btn-download" style="font-size: 0.85rem; padding: 6px 10px; margin-left: 8px;">
+              📊 CSV
+            </button>
+            <button onclick="downloadByDate('json')" class="btn-download" style="font-size: 0.85rem; padding: 6px 10px; margin-left: 4px;">
+              📋 JSON
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lists">
+      <div class="panel">
+        <h3>Últimos links</h3>
+        <ul>
+          {% for it in recent_links %}
+          <li>
+            <a href="{{ it.url }}" target="_blank" rel="noopener">{{ it.url }}</a>
+            <span class="muted">({{ it.created_at }})</span>
+            <form action="/delete-link/{{ it.id }}" method="post" style="display:inline">
+              <button type="submit" class="del">🗑</button>
+            </form>
+          </li>
+          {% else %}
+          <li class="muted">— vacío —</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="panel">
+        <h3>Últimos artículos enriquecidos</h3>
+        
+        <!-- Bulk Actions -->
+        <div class="bulk-actions" id="bulk-actions">
+          <span class="selected-count" id="selected-count">0 artículos seleccionados</span>
+          <form method="POST" action="/bulk-action" style="display: inline;">
+            <input type="hidden" name="action" value="mark_favorite">
+            <input type="hidden" name="article_ids" id="bulk-favorite-ids">
+            <button type="submit" class="btn-success">⭐ Marcar favoritos</button>
+          </form>
+          <form method="POST" action="/bulk-action" style="display: inline;">
+            <input type="hidden" name="action" value="unmark_favorite">
+            <input type="hidden" name="article_ids" id="bulk-unfavorite-ids">
+            <button type="submit" class="btn-success">⭐ Desmarcar favoritos</button>
+          </form>
+          <form method="POST" action="/bulk-action" style="display: inline;">
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="article_ids" id="bulk-delete-ids">
+            <button type="submit" class="btn-danger" onclick="return confirm('¿Eliminar los artículos seleccionados?')">🗑️ Eliminar</button>
+          </form>
+          <button type="button" onclick="clearSelection()">Limpiar selección</button>
+        </div>
+        
+        <div class="actions" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0 12px">
+          <input id="q" type="search" placeholder="Buscar…" style="min-width:220px">
+          <select id="sort">
+            <option value="-date">Más recientes</option>
+            <option value="title">Título A→Z</option>
+          </select>
+          <button id="clear" type="button">Limpiar filtros</button>
+          <button id="refreshNow" type="button">🔄 Actualizar ahora</button>
+          <label style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="autoref"> Auto (5 min)</label>
+          <a href="/search" class="search-advanced">🔍 Búsqueda avanzada</a>
+        </div>
+        <button type="button" class="btn-expand" onclick="toggleTable()">
+          <span id="expand-text">Ver más</span> <span id="expand-icon">▼</span>
+        </button>
+
+        <div class="table-container collapsed" id="table-container">
+          <div class="table-wrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th style="width:32px"><input type="checkbox" id="select-all" onchange="toggleAllSelection()"></th>
+                <th style="width:48px">#</th>
+                <th>Título</th>
+                <th>Link</th>
+                <th style="white-space:nowrap">Fecha</th>
+                <th>Autor</th>
+                <th>Sección</th>
+                <th>Fuente</th>
+                <th>Resumen_RSS</th>
+                <th>Contenido_extendido</th>
+                <th style="white-space:nowrap">Creado</th>
+                <th style="width:120px">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+          {% for a in recent_articles %}
+              <tr>
+                <td><input type="checkbox" class="bulk-checkbox" value="{{ a.id }}" onchange="updateBulkActions()"></td>
+                <td>{{ loop.index }}</td>
+                <td title="{{ a.title or '' }}">
+                  <strong>{{ (a.title or '(Sin título)')|short(60) }}</strong>
+                </td>
+                <td title="{{ a.url }}">
+                  <a href="{{ a.url }}" target="_blank" rel="noopener">{{ a.url|short(40) }}</a>
+                </td>
+                <td title="{{ a.date_iso or 'Fecha no disponible' }}">
+                  {% if a.date_iso and a.date_iso.strip() %}
+                    <span style="font-size:0.85rem">{{ a.date_iso|format_date }}</span>
+                  {% else %}
+                    <span class="muted" style="font-size:0.8rem">N/A</span>
+                  {% endif %}
+                </td>
+                <td title="{{ a.author or 'Autor no disponible' }}">
+                  {% if a.author and a.author.strip() %}
+                    <span style="font-size:0.85rem">{{ a.author|short(20) }}</span>
+                  {% else %}
+                    <span class="muted" style="font-size:0.8rem">N/A</span>
+                  {% endif %}
+                </td>
+                <td title="{{ a.section or 'Sección no disponible' }}">
+                  {% if a.section and a.section.strip() %}
+                    <span style="font-size:0.85rem; background:#2d3748; padding:2px 6px; border-radius:4px">{{ a.section|short(15) }}</span>
+                  {% else %}
+                    <span class="muted" style="font-size:0.8rem">N/A</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if a.source %}
+                    {% set source_info = rss_sources.get(a.source, {}) %}
+                    <span title="{{ source_info.name or a.source }}" style="font-size:0.85rem; background:#1a365d; color:#63b3ed; padding:2px 6px; border-radius:4px">{{ source_info.name or a.source }}</span>
+                  {% else %}
+                    <span class="muted" style="font-size:0.85rem">Manual</span>
+                  {% endif %}
+                </td>
+                <td title="{{ a.summary or '' }}">
+                  {% if a.summary %}
+                    {{ a.summary|short(80) }}
+                  {% else %}
+                    <span class="muted">—</span>
+                  {% endif %}
+                </td>
+                <td title="{{ a.content_long or '' }}">
+                  {% if a.content_long %}
+                    {{ a.content_long|short(100) }}
+                  {% else %}
+                    <span class="muted">—</span>
+                  {% endif %}
+                </td>
+                <td title="{{ a.created_at }}">
+                  <span style="font-size:0.8rem; color:var(--muted)">{{ a.created_at.strftime('%d/%m %H:%M') if a.created_at else '—' }}</span>
+                </td>
+                <td>
+                  <div style="display: flex; gap: 4px; align-items: center;">
+                    <form action="/toggle-favorite/{{ a.id }}" method="post" style="display: inline;">
+                      <button type="submit" class="btn-favorite {% if safe_getattr(a, 'is_favorite', False) %}favorited{% endif %}" title="Marcar como favorito">
+                        ⭐
+                      </button>
+                    </form>
+                    <form action="/delete-article/{{ a.id }}" method="post" style="display: inline;" onsubmit="return confirm('¿Eliminar este artículo?')">
+                      <button type="submit" class="del" title="Eliminar artículo">🗑</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+          {% else %}
+              <tr><td colspan="12" class="muted">— vacío —</td></tr>
+          {% endfor %}
+            </tbody>
+          </table>
+      </div>
+    </div>
+  </div>
+      <div id="toast" class="toast" hidden></div>
+    </div>
+  </div>
+
+  <script>
+    // Theme Toggle
+    function toggleTheme() {
+      const body = document.body;
+      const icon = document.getElementById('theme-icon');
+      
+      if (body.classList.contains('light-theme')) {
+        body.classList.remove('light-theme');
+        icon.textContent = '🌙';
+        localStorage.setItem('theme', 'dark');
+      } else {
+        body.classList.add('light-theme');
+        icon.textContent = '☀️';
+        localStorage.setItem('theme', 'light');
+      }
+    }
+    
+    // Load saved theme
+    if (localStorage.getItem('theme') === 'light') {
+      document.body.classList.add('light-theme');
+      document.getElementById('theme-icon').textContent = '☀️';
+    }
+    
+    // Table Toggle
+    function toggleTable() {
+      const container = document.getElementById('table-container');
+      const text = document.getElementById('expand-text');
+      const icon = document.getElementById('expand-icon');
+      
+      if (container.classList.contains('collapsed')) {
+        container.classList.remove('collapsed');
+        text.textContent = 'Ver menos';
+        icon.textContent = '▲';
+      } else {
+        container.classList.add('collapsed');
+        text.textContent = 'Ver más';
+        icon.textContent = '▼';
+      }
+    }
+    
+    // Bulk Actions
+    function updateBulkActions() {
+      const checkboxes = document.querySelectorAll('.bulk-checkbox:checked');
+      const bulkActions = document.getElementById('bulk-actions');
+      const selectedCount = document.getElementById('selected-count');
+      const selectAll = document.getElementById('select-all');
+      
+      const count = checkboxes.length;
+      const totalCheckboxes = document.querySelectorAll('.bulk-checkbox').length;
+      
+      if (count > 0) {
+        bulkActions.classList.add('show');
+        selectedCount.textContent = `${count} artículo${count !== 1 ? 's' : ''} seleccionado${count !== 1 ? 's' : ''}`;
+        
+        // Update hidden inputs
+        const ids = Array.from(checkboxes).map(cb => cb.value);
+        document.getElementById('bulk-favorite-ids').value = ids.join(',');
+        document.getElementById('bulk-unfavorite-ids').value = ids.join(',');
+        document.getElementById('bulk-delete-ids').value = ids.join(',');
+      } else {
+        bulkActions.classList.remove('show');
+      }
+      
+      // Update select all checkbox
+      selectAll.checked = count === totalCheckboxes && totalCheckboxes > 0;
+      selectAll.indeterminate = count > 0 && count < totalCheckboxes;
+    }
+    
+    function toggleAllSelection() {
+      const selectAll = document.getElementById('select-all');
+      const checkboxes = document.querySelectorAll('.bulk-checkbox');
+      
+      checkboxes.forEach(cb => {
+        cb.checked = selectAll.checked;
+      });
+      
+      updateBulkActions();
+    }
+    
+    function clearSelection() {
+      const checkboxes = document.querySelectorAll('.bulk-checkbox');
+      const selectAll = document.getElementById('select-all');
+      
+      checkboxes.forEach(cb => {
+        cb.checked = false;
+      });
+      selectAll.checked = false;
+      selectAll.indeterminate = false;
+      
+      updateBulkActions();
+    }
+    
+    // Toast notifications
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = `toast ${type}`;
+      toast.hidden = false;
+      
+      setTimeout(() => {
+        toast.hidden = true;
+      }, 3000);
+    }
+    
+    // Descarga histórica
+    function downloadHistorical(format) {
+      const days = document.getElementById('historical-days').value;
+      const source = document.getElementById('historical-source').value;
+      
+      let url = `/download/historical?days=${days}&format=${format}`;
+      if (source) {
+        url += `&source=${source}`;
+      }
+      
+      // Mostrar mensaje
+      const daysText = days === '1' ? 'día' : 'días';
+      const sourceText = source ? ` de ${document.getElementById('historical-source').selectedOptions[0].text}` : '';
+      showToast(`Descargando artículos de los últimos ${days} ${daysText}${sourceText}...`, 'info');
+      
+      // Descargar
+      window.open(url, '_blank');
+    }
+    
+    // Descarga por fecha específica
+    function downloadByDate(format) {
+      const date = document.getElementById('specific-date').value;
+      
+      if (!date) {
+        showToast('Por favor selecciona una fecha', 'error');
+        return;
+      }
+      
+      const url = `/download/by-date?date=${date}&format=${format}`;
+      
+      // Mostrar mensaje
+      const dateObj = new Date(date);
+      const formattedDate = dateObj.toLocaleDateString('es-ES');
+      showToast(`Descargando artículos del ${formattedDate}...`, 'info');
+      
+      // Descargar
+      window.open(url, '_blank');
+    }
+    // Filtros básicos en cliente
+    (function(){
+      const q = document.getElementById('q');
+      const sort = document.getElementById('sort');
+      const clear = document.getElementById('clear');
+      const rows = () => Array.from(document.querySelectorAll('.tbl tbody tr'));
+      function applyFilters(){
+        const term = (q?.value||'').toLowerCase();
+        rows().forEach(tr=>{
+          const text = tr.innerText.toLowerCase();
+          tr.style.display = text.includes(term) ? '' : 'none';
+        });
+        if(sort){
+          const tbody = document.querySelector('.tbl tbody');
+          const arr = rows().filter(tr=>tr.style.display!=='none');
+          const key = sort.value;
+          arr.sort((a,b)=>{
+            if(key==='title'){
+              const ta=a.children[1].innerText.trim().toLowerCase();
+              const tb=b.children[1].innerText.trim().toLowerCase();
+              return ta.localeCompare(tb);
+            }
+            // -date por defecto: usa columna fecha (índice 3)
+            const da=a.children[3].innerText.trim();
+            const db=b.children[3].innerText.trim();
+            return (db>da?1:-1);
+          });
+          arr.forEach(tr=>tbody.appendChild(tr));
+        }
+      }
+      q?.addEventListener('input', applyFilters);
+      sort?.addEventListener('change', applyFilters);
+      clear?.addEventListener('click', ()=>{ if(q) q.value=''; if(sort) sort.value='-date'; applyFilters();});
+      // Refresh now + Auto-refresh
+      async function doRefresh(){
+        const b = document.getElementById('refreshNow');
+        if(!b) return; b.disabled=true; const txt=b.textContent; b.textContent='Actualizando…';
+        await fetch('/refresh', {method:'POST'});
+        location.reload();
+      }
+      document.getElementById('refreshNow')?.addEventListener('click', doRefresh);
+      let timer=null; const auto=document.getElementById('autoref');
+      auto?.addEventListener('change', (e)=>{
+        if(e.target.checked){ timer=setInterval(doRefresh, 5*60*1000); }
+        else { clearInterval(timer); }
+      });
+    })();
+  </script>
+</body>
+</html>

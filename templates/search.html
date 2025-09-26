@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🔍 Búsqueda Avanzada - News Aggregator</title>
+    <style>
+        :root {
+            --bg-primary: #0b0f14;
+            --bg-secondary: #121821;
+            --bg-tertiary: #1c2530;
+            --text-primary: #eaf2fb;
+            --text-secondary: #a8b5c7;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --border: #2d3748;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 16px;
+            color: var(--accent);
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .search-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-secondary);
+            border-color: var(--accent);
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+
+        .results-count {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .results-table th {
+            background: var(--bg-tertiary);
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border);
+        }
+
+        .results-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        .results-table tr:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .article-title {
+            font-weight: 600;
+            color: var(--accent);
+            text-decoration: none;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .article-title:hover {
+            text-decoration: underline;
+        }
+
+        .article-meta {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .article-summary {
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .article-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .no-results h3 {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-table {
+                font-size: 0.9rem;
+            }
+            
+            .results-table th,
+            .results-table td {
+                padding: 12px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">
+            ← Volver al inicio
+        </a>
+
+        <div class="header">
+            <h1>🔍 Búsqueda Avanzada</h1>
+            
+            <form method="GET" action="/search" class="search-form">
+                <div class="form-group">
+                    <label for="q">Palabras clave</label>
+                    <input type="text" id="q" name="q" value="{{ query }}" placeholder="Buscar en título, resumen, contenido...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="source">Fuente</label>
+                    <select id="source" name="source">
+                        <option value="">Todas las fuentes</option>
+                        {% for key, source in rss_sources.items() %}
+                        <option value="{{ key }}" {% if source == source %}selected{% endif %}>{{ source.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="author">Autor</label>
+                    <input type="text" id="author" name="author" value="{{ author }}" placeholder="Nombre del autor...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="section">Sección</label>
+                    <input type="text" id="section" name="section" value="{{ section }}" placeholder="Categoría o sección...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="date_from">Desde</label>
+                    <input type="date" id="date_from" name="date_from" value="{{ date_from }}">
+                </div>
+                
+                <div class="form-group">
+                    <label for="date_to">Hasta</label>
+                    <input type="date" id="date_to" name="date_to" value="{{ date_to }}">
+                </div>
+            </form>
+            
+            <div class="search-buttons">
+                <button type="submit" form="search-form" class="btn btn-primary">
+                    🔍 Buscar
+                </button>
+                <a href="/search" class="btn btn-secondary">
+                    🗑️ Limpiar filtros
+                </a>
+            </div>
+        </div>
+
+        {% if results %}
+        <div class="results-header">
+            <div class="results-count">
+                📊 {{ results|length }} resultado{{ 's' if results|length != 1 else '' }} encontrado{{ 's' if results|length != 1 else '' }}
+            </div>
+        </div>
+
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Fuente</th>
+                    <th>Autor</th>
+                    <th>Sección</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for article in results %}
+                <tr>
+                    <td>
+                        <a href="{{ article.url }}" target="_blank" class="article-title">
+                            {{ article.title|short(80) }}
+                        </a>
+                        <div class="article-meta">
+                            {{ article.created_at.strftime('%d/%m/%Y %H:%M') if article.created_at }}
+                        </div>
+                        <div class="article-summary">
+                            {{ article.summary|short(120) }}
+                        </div>
+                    </td>
+                    <td>
+                        <span style="color: var(--accent); font-weight: 600;">
+                            {{ rss_sources[article.source].name if article.source in rss_sources else article.source }}
+                        </span>
+                    </td>
+                    <td>{{ article.author or 'N/A' }}</td>
+                    <td>{{ article.section or 'N/A' }}</td>
+                    <td>{{ article.date_iso|format_date if article.date_iso else 'N/A' }}</td>
+                    <td>
+                        <div class="article-actions">
+                            <form method="POST" action="/toggle-favorite/{{ article.id }}" style="display: inline;">
+                                <button type="submit" class="btn btn-small btn-success">
+                                    ⭐ Favorito
+                                </button>
+                            </form>
+                            <form method="POST" action="/delete-article/{{ article.id }}" style="display: inline;">
+                                <button type="submit" class="btn btn-small btn-danger" onclick="return confirm('¿Eliminar este artículo?')">
+                                    🗑️ Eliminar
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="no-results">
+            <h3>🔍 No se encontraron resultados</h3>
+            <p>Intenta ajustar los filtros de búsqueda o usar palabras clave diferentes.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Auto-submit form when filters change
+        document.querySelectorAll('select, input[type="date"]').forEach(element => {
+            element.addEventListener('change', function() {
+                this.form.submit();
+            });
+        });
+    </script>
+</body>
+</html>
